@@ -67,21 +67,21 @@ npm run lint       # Run ESLint
 ```
 
 ### Key Configuration Files
-- [apps/web/next.config.ts](apps/web/next.config.ts) - React Compiler is enabled
-- [apps/web/tsconfig.json](apps/web/tsconfig.json) - Path alias `@/*` points to `apps/web/*`
-- [apps/web/eslint.config.mjs](apps/web/eslint.config.mjs) - ESLint v9 flat config with Next.js rules
-- [apps/web/app/globals.css](apps/web/app/globals.css) - Tailwind v4 setup with theme variables
+- [apps/web/next.config.ts](../apps/web/next.config.ts) - React Compiler is enabled
+- [apps/web/tsconfig.json](../apps/web/tsconfig.json) - Path alias `@/*` points to `apps/web/*`
+- [apps/web/eslint.config.mjs](../apps/web/eslint.config.mjs) - ESLint v9 flat config with Next.js rules
+- [apps/web/app/globals.css](../apps/web/app/globals.css) - Tailwind v4 setup with theme variables
 
 ## Project-Specific Conventions
 
 ### React Compiler
-React Compiler is **enabled** in production (`reactCompiler: true` in [next.config.ts](apps/web/next.config.ts)). Write idiomatic React:
+React Compiler is **enabled** in production (`reactCompiler: true` in [next.config.ts](../apps/web/next.config.ts)). Write idiomatic React:
 - Avoid manual memoization (`useMemo`, `useCallback`) - compiler handles it
 - Follow React rules (no mutation, pure render logic)
 
 ### Tailwind CSS v4
 Using the new CSS-first architecture:
-- Import: `@import "tailwindcss"` in [globals.css](apps/web/app/globals.css)
+- Import: `@import "tailwindcss"` in [globals.css](../apps/web/app/globals.css)
 - Theme customization via `@theme inline` directive
 - Custom properties: `--background`, `--foreground`, `--font-*` defined in `:root`
 
@@ -94,8 +94,8 @@ import { utils } from "@/lib/utils";
 
 ### File Organization
 - **App Router**: All routes in `apps/web/app/`
-- **Layout**: Root layout at [apps/web/app/layout.tsx](apps/web/app/layout.tsx) with Geist fonts
-- **Global styles**: [apps/web/app/globals.css](apps/web/app/globals.css)
+- **Layout**: Root layout at [apps/web/app/layout.tsx](../apps/web/app/layout.tsx) with Geist fonts
+- **Global styles**: [apps/web/app/globals.css](../apps/web/app/globals.css)
 
 ## External Dependencies & Integration Points
 
