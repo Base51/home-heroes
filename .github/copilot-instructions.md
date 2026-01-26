@@ -11,18 +11,26 @@
 **Style**: Clear, structured answers. Use numbered steps, bullet points, and examples when appropriate. Include reasoning for suggestions.
 
 ## Project Overview
-Home Heroes is a **gamified family productivity app** focused on habits, responsibilities, and positive reinforcement for parents and kids. This is an educational/interactive platform with gamified characters and stories designed for family engagement.
+Home Heroes is a **cooperative family productivity game** where household responsibilities become tasks and quests in a shared Hero HQ. Family members complete real-world activities to earn XP, level up heroes, maintain streaks, and unlock badges together.
 
-**Target Users**: Families, kids, parents
+**Core Philosophy**:
+- **Trust-based**: Tasks grant XP immediately upon completion (no approval step)
+- **Positive reinforcement only**: No punishment language
+- **Shared progress**: Family succeeds together
+- **Safe by default**: Parents control access and monetization
+
+**Target Users**: Families with kids (ages 5-14), parents who prefer positive reinforcement
 
 **Key Characters**:
 - Super Mommy (parent hero)
 - Super Daddy (parent hero)
 - Male/female kid heroes
 
-**Design Style**: Cartoonish, colorful, inclusive, visually consistent across characters
+**Design Style**: Cartoonish, colorful, inclusive, mobile-first UX
 
-**Platform**: Monorepo containing web app, mobile app, and shared packages
+**Platform**: Monorepo containing web app (MVP), future mobile apps, and shared packages
+
+**📚 Detailed Documentation**: See [/docs](../docs/) folder for comprehensive requirements, architecture, and design decisions
 
 ## Architecture
 
@@ -38,9 +46,16 @@ packages/
 ```
 
 **Important**: `packages/*` directories are scaffolded but empty. When implementing shared logic:
-- `core/` - Game mechanics, business logic, types
+- `core/` - Game mechanics (XP, levels, streaks, badges), business logic, types
 - `ui/` - Shared React components for both web/mobile
-- `api/` - API clients, data fetching utilities
+- `api/` - API clients, data fetching utilities, Supabase wrappers
+
+**Core Game Mechanics** (implement in `packages/core`):
+- **XP System**: Immediate rewards upon completion, no approval step
+- **Levels**: Cumulative XP with configurable curves per hero
+- **Streaks**: Maintained by completing scheduled tasks on time
+- **Quests**: Group activities where multiple family members earn XP
+- **Badges**: Challenge-based unlocks (extensible system)
 
 ### Web App Stack (apps/web/)
 - **Framework**: Next.js 16.1.4 with App Router
@@ -74,6 +89,19 @@ npm run lint       # Run ESLint
 
 ## Project-Specific Conventions
 
+### Database Design (See [docs/05_database_schema.md](../docs/05_database_schema.md))
+- **Separation principle**: Keep `family_members` (real people) separate from `heroes` (gamified profiles)
+- **Naming**: snake_case for tables and columns
+- **Booleans**: Use `is_*`, `has_*` prefixes
+- **Foreign keys**: Always use explicit constraints
+- **RLS ready**: Design schema with Row Level Security in mind
+
+### Authentication & User Roles (See [docs/02_user_roles_and_access.md](../docs/02_user_roles_and_access.md))
+- **Parents**: Email/password authentication via Supabase Auth
+- **Kids**: NEVER authenticate with email/password - access via shared device, PIN, or parent session
+- **Role enforcement**: Parents create/manage, kids complete tasks
+- **CRITICAL**: Follow GDPR and COPPA-lite principles (minimal data collection, no sensitive kid data)
+
 ### React Compiler
 React Compiler is **enabled** in production (`reactCompiler: true` in [next.config.ts](../apps/web/next.config.ts)). Write idiomatic React:
 - Avoid manual memoization (`useMemo`, `useCallback`) - compiler handles it
@@ -96,6 +124,17 @@ import { utils } from "@/lib/utils";
 - **App Router**: All routes in `apps/web/app/`
 - **Layout**: Root layout at [apps/web/app/layout.tsx](../apps/web/app/layout.tsx) with Geist fonts
 - **Global styles**: [apps/web/app/globals.css](../apps/web/app/globals.css)
+
+### MVP Scope (See [docs/01_product_scope_mvp.md](../docs/01_product_scope_mvp.md))
+**IN SCOPE**:
+- Family/hero creation, tasks, quests, XP, levels, streaks, badges
+- Trust-based completion (no approval flows)
+
+**OUT OF SCOPE**:
+- Task approval workflows
+- Social features, chat, messaging
+- Public leaderboards or profiles
+- Ads or external rewards marketplace
 
 ## External Dependencies & Integration Points
 
