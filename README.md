@@ -1,11 +1,31 @@
-# Home Heroes
+# Home Heroes 🏠🦸‍♂️
 
-Home Heroes is a gamified family productivity app focused on habits,
-responsibilities, and positive reinforcement for parents and kids.
+Home Heroes is a family-focused gamified task and quest app that turns real-life responsibilities into a cooperative hero adventure.
 
-This repository contains:
-- Web app
-- Mobile app
-- Shared game logic
+Parents and kids complete tasks and group quests together, earn XP, build streaks, unlock badges, and level up as a family.
 
-More details coming soon.
+This repository contains the product definition, technical documentation, and backend setup for the Home Heroes MVP.
+
+---
+
+## Core Principles
+- Family-first and kid-safe
+- Trust-based (no task approval in MVP)
+- Mobile-first UX
+- Simple daily usage, deep long-term engagement
+
+---
+
+## Tech Stack (Initial)
+- Frontend: TBD (Web → Mobile)
+- Backend: Supabase
+- Auth: Supabase Auth (Parents only)
+- Database: PostgreSQL (Supabase)
+- Tooling: VS Code + GitHub Copilot
+
+---
+
+## Documentation
+All product and technical decisions live in `/docs`.
+
+Start here before writing code.
