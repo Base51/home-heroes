@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/auth'
 import { getUserFamily, getFamilyMembersWithHeroes, type Family } from '@/lib/family'
@@ -98,9 +99,17 @@ export default function DashboardPage() {
       <nav className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                🦸 {family?.name || 'Hero HQ'}
+            <div className="flex items-center gap-4">
+              <Image 
+                src="/home-heroes-logo.png" 
+                alt="Home Heroes" 
+                width={120} 
+                height={36}
+                className="h-9 w-auto"
+              />
+              <div className="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                {family?.name || 'Hero HQ'}
               </h1>
             </div>
             <div className="flex items-center gap-4">

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { signUp } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -71,8 +72,15 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="text-center mb-8">          <div className="flex justify-center mb-6">
+            <Image 
+              src="/home-heroes-logo.png" 
+              alt="Home Heroes" 
+              width={150} 
+              height={45}
+              className="h-12 w-auto"
+            />
+          </div>          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Join Home Heroes! 🦸
           </h1>
           <p className="text-gray-600 dark:text-gray-400">

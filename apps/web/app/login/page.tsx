@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -55,6 +56,15 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
       <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <Image 
+              src="/home-heroes-logo.png" 
+              alt="Home Heroes" 
+              width={150} 
+              height={45}
+              className="h-12 w-auto"
+            />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Welcome Back! 🦸
           </h1>

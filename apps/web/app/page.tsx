@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -49,9 +50,19 @@ export default function Home() {
       <main className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center max-w-4xl mx-auto mb-16">
-          <h1 className="text-6xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6">
+          <div className="flex justify-center mb-8">
+            <Image 
+              src="/home-heroes-logo.png" 
+              alt="Home Heroes" 
+              width={400} 
+              height={120}
+              priority
+              className="h-24 md:h-28 w-auto"
+            />
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6">
             Welcome to <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 whitespace-nowrap">
               Home Heroes
             </span>
           </h1>
