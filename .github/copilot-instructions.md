@@ -100,10 +100,14 @@ import { utils } from "@/lib/utils";
 ## External Dependencies & Integration Points
 
 ### Supabase Backend
-- **Purpose**: Authentication, PostgreSQL database, realtime subscriptions, file storage
-- **Shared across platforms**: Web and mobile apps use the same Supabase instance
-- **Client setup**: When implementing, add Supabase clients to `packages/api` for reusability
-- **Environment variables**: Store Supabase URL and anon key in `.env.local` (web) and app config (mobile)
+- **Status**: ✅ Installed and configured in web app
+- **Package**: `@supabase/supabase-js` v2.93.1
+- **Client location**: [apps/web/lib/supabase.ts](../apps/web/lib/supabase.ts)
+- **Usage pattern**: Import with `import { supabase } from '@/lib/supabase'`
+- **Required env vars**: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`
+- **Example usage**: See [apps/web/app/page.tsx](../apps/web/app/page.tsx) for session check pattern
+- **Client-side pattern**: Use `'use client'` directive when accessing Supabase in components
+- **Future**: Move client to `packages/api` when implementing shared logic for mobile
 
 ### Package Dependencies
 Currently minimal dependencies - when adding new ones:
@@ -140,6 +144,8 @@ Currently minimal dependencies - when adding new ones:
 ## Important Notes
 - **Empty packages**: Don't import from `packages/*` yet - scaffold them first with package.json and exports
 - **Mobile app**: Uses React Native + Expo - not yet scaffolded
-- **Supabase integration**: Backend chosen but not yet configured - will need client setup in both web and mobile
+- **Supabase setup**: ✅ Client configured in web app at `apps/web/lib/supabase.ts`
+- **Environment setup**: Create `.env.local` in `apps/web/` with Supabase credentials before running
 - **Styling system**: Dark mode support is built-in via `prefers-color-scheme` in globals.css
 - **Cross-platform**: Design game logic in `packages/core` to work identically on web and mobile
+- **Monorepo tool**: No Turborepo/pnpm workspaces configured yet - using standard npm per app
