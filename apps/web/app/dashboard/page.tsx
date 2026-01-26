@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/auth'
 import { getUserFamily, getFamilyMembersWithHeroes, type Family } from '@/lib/family'
@@ -102,12 +103,20 @@ export default function DashboardPage() {
                 🦸 {family?.name || 'Hero HQ'}
               </h1>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-            >
-              Sign Out
-            </button>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/settings"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+              >
+                ⚙️ Settings
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       </nav>

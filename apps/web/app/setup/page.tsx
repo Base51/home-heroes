@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createFamilyWithParent, getUserFamily, type HeroType } from '@/lib/family'
+import { supabase } from '@/lib/supabase'
 
 const HERO_TYPES = [
   { value: 'super_mommy' as HeroType, label: 'Super Mommy', icon: '🦸‍♀️', desc: 'Mother hero' },
@@ -25,10 +26,23 @@ export default function SetupPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // Check if user already has a family
+  // Check authentication and existing family
   useEffect(() => {
-    const checkExistingFamily = async () => {
+    const checkAuthAndFamily = async () => {
+      console.log('🔵 Setup: Checking authentication...')
+      
+      // First check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        console.log('🔴 Setup: Not authenticated, redirecting to login')
+        window.location.href = '/login?redirect=/setup'
+        return
+      }
+      
+      console.log('✅ Setup: User authenticated')
       console.log('🔵 Setup: Checking for existing family...')
+      
       const existing = await getUserFamily()
       console.log('🔵 Setup: Existing family check:', existing)
       
@@ -42,7 +56,7 @@ export default function SetupPage() {
       setCheckingExisting(false)
     }
 
-    checkExistingFamily()
+    checkAuthAndFamily()
   }, [])
 
   const handleStep1 = (e: React.FormEvent) => {
