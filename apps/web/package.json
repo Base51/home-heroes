@@ -6,7 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:supabase": "tsx scripts/test-supabase.ts",
+    "db:reset": "cd ../.. && supabase db reset",
+    "db:diff": "cd ../.. && supabase db diff -f",
+    "db:push": "cd ../.. && supabase db push",
+    "db:pull": "cd ../.. && supabase db pull",
+    "db:status": "cd ../.. && supabase status",
+    "env:switch": "cd ../.. && ./scripts/switch-env.sh",
+    "validate:push": "cd ../.. && ./scripts/validate-push.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.1",
@@ -23,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
