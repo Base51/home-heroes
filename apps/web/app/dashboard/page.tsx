@@ -94,146 +94,172 @@ export default function DashboardPage() {
     )
   }
 
+  // Mock data for demo (replace with real data later)
+  const familyLevel = 4
+  const currentXP = 120
+  const nextLevelXP = 200
+  const xpProgress = (currentXP / nextLevelXP) * 100
+
+  const mockTasks = [
+    { id: 1, title: 'Clean your room', xp: 10, icon: '🧹' },
+    { id: 2, title: 'Do homework', xp: 15, icon: '📚' },
+    { id: 3, title: 'Walk the dog', xp: 10, icon: '🐕' },
+    { id: 4, title: 'Set the table', xp: 5, icon: '🍽️' },
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-      <nav className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-4">
-              <Image 
-                src="/home-heroes-logo.png" 
-                alt="Home Heroes" 
-                width={120} 
-                height={36}
-                className="h-9 w-auto"
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 pb-20">
+      {/* A) Family Identity Row */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+        <div className="flex items-center justify-between max-w-2xl mx-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🏠</span>
+            <span className="font-bold text-gray-900 dark:text-white">
+              {family?.name || 'Home Heroes'}
+            </span>
+          </div>
+          <div className="px-3 py-1 bg-amber-400 rounded-full font-bold text-sm text-gray-900">
+            Lv. {familyLevel}
+          </div>
+        </div>
+      </div>
+
+      <main className="max-w-2xl mx-auto px-4 pt-6 pb-4">
+        {/* B) Family Emblem (Center Anchor) */}
+        <div className="flex justify-center mb-6">
+          <div className="relative w-32 h-32">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              {/* Shield/House base */}
+              <path
+                d="M50 10 L80 30 L80 70 L50 90 L20 70 L20 30 Z"
+                fill="url(#shieldGradient)"
+                stroke="#f59e0b"
+                strokeWidth="2"
               />
-              <div className="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                {family?.name || 'Hero HQ'}
-              </h1>
+              {/* House icon inside */}
+              <path
+                d="M50 35 L35 48 L35 65 L65 65 L65 48 Z"
+                fill="#fff"
+                opacity="0.3"
+              />
+              <rect x="45" y="55" width="10" height="10" fill="#fff" opacity="0.5" />
+              <defs>
+                <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#3b82f6" />
+                  <stop offset="100%" stopColor="#8b5cf6" />
+                </linearGradient>
+              </defs>
+            </svg>
+            {/* Level badge */}
+            <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center font-bold text-sm border-2 border-white dark:border-gray-800">
+              {familyLevel}
             </div>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/settings"
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+          </div>
+        </div>
+
+        {/* C) XP Progress Bar */}
+        <div className="mb-6 px-2">
+          <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-8 overflow-hidden relative">
+            <div 
+              className="h-full bg-gradient-to-r from-amber-400 to-yellow-500 transition-all duration-500 ease-out flex items-center justify-end pr-3"
+              style={{ width: `${xpProgress}%` }}
+            >
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-sm font-bold text-gray-900 dark:text-white drop-shadow">
+                {currentXP} / {nextLevelXP} XP
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* D) Family Avatars (Social Proof) */}
+        <div className="flex justify-center mb-6">
+          <div className="flex -space-x-3">
+            {familyMembers.slice(0, 6).map((member: any, index: number) => (
+              <div
+                key={member.id}
+                className="w-12 h-12 rounded-full border-3 border-white dark:border-gray-800 bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-2xl shadow-md"
+                style={{ zIndex: familyMembers.length - index }}
               >
-                ⚙️ Settings
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-              >
-                Sign Out
+                {member.heroes[0]?.hero_type === 'super_mommy' && '🦸‍♀️'}
+                {member.heroes[0]?.hero_type === 'super_daddy' && '🦸‍♂️'}
+                {member.heroes[0]?.hero_type === 'kid_male' && '🧒'}
+                {member.heroes[0]?.hero_type === 'kid_female' && '👧'}
+                {!member.heroes[0] && '👤'}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* E) Today's Tasks */}
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white px-2 mb-4">
+            ⭐ Today&apos;s Tasks
+          </h2>
+          
+          {mockTasks.map((task) => (
+            <div
+              key={task.id}
+              className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{task.icon}</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {task.title}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                  +{task.xp} XP
+                </span>
+              </div>
+              <button className="w-full bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95">
+                Complete ✓
               </button>
             </div>
-          </div>
+          ))}
         </div>
-      </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Welcome to Your Hero HQ! 🎉
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Your family is all set up
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto space-y-8">
-            {/* Family Info */}
-            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Family Information
-              </h3>
-              <dl className="space-y-2">
-                <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Family Name:
-                  </dt>
-                  <dd className="text-sm text-gray-900 dark:text-white font-semibold">
-                    {family?.name}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Family Members:
-                  </dt>
-                  <dd className="text-sm text-gray-900 dark:text-white font-semibold">
-                    {familyMembers.length}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-
-            {/* Family Members */}
-            <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                👥 Family Heroes
-              </h3>
-              <div className="space-y-4">
-                {familyMembers.map((member: any) => (
-                  <div 
-                    key={member.id}
-                    className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="text-3xl">
-                        {member.heroes[0]?.hero_type === 'super_mommy' && '🦸‍♀️'}
-                        {member.heroes[0]?.hero_type === 'super_daddy' && '🦸‍♂️'}
-                        {member.heroes[0]?.hero_type === 'kid_male' && '🧒'}
-                        {member.heroes[0]?.hero_type === 'kid_female' && '👧'}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          {member.heroes[0]?.hero_name || member.display_name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {member.display_name} • Level {member.heroes[0]?.level || 1}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {member.heroes[0]?.total_xp || 0} XP
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {member.role === 'parent' ? '👑 Parent' : '🎮 Kid'}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Next Steps */}
-            <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-              <h3 className="text-lg font-semibold text-green-900 dark:text-green-300 mb-3">
-                🚀 Next Steps
-              </h3>
-              <ul className="space-y-2 text-sm text-green-800 dark:text-green-400">
-                <li className="flex items-start">
-                  <span className="mr-2">1.</span>
-                  <span>Add more family members (kids)</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2">2.</span>
-                  <span>Create your first task</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2">3.</span>
-                  <span>Set up a family quest</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2">4.</span>
-                  <span>Start earning XP and leveling up!</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+        {/* Settings button (temporary) */}
+        <div className="mt-6 flex gap-3">
+          <Link
+            href="/settings"
+            className="flex-1 px-4 py-2 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg"
+          >
+            ⚙️ Settings
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+          >
+            Sign Out
+          </button>
         </div>
       </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
+        <div className="max-w-2xl mx-auto flex">
+          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-blue-600 dark:text-blue-400 font-semibold border-t-2 border-blue-600">
+            <span className="text-xl">⭐</span>
+            <span className="text-xs">Today</span>
+          </button>
+          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+            <span className="text-xl">✓</span>
+            <span className="text-xs">Tasks</span>
+          </button>
+          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+            <span className="text-xl">🗺️</span>
+            <span className="text-xs">Quests</span>
+          </button>
+          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+            <span className="text-xl">👨‍👩‍👧‍👦</span>
+            <span className="text-xs">Family</span>
+          </button>
+        </div>
+      </nav>
     </div>
   )
 }
