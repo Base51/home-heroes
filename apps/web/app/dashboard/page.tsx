@@ -400,16 +400,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <Link
-            href="/dashboard/family"
-            className="px-4 py-3 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
-          >
-            👨‍👩‍👧‍👦 Family
-          </Link>
+        <div className="mt-6 flex justify-center">
           <Link
             href="/settings"
-            className="px-4 py-3 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+            className="px-6 py-3 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
           >
             ⚙️ Settings
           </Link>
@@ -438,6 +432,10 @@ export default function DashboardPage() {
           <Link href="/dashboard/quests" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">🗺️</span>
             <span className="text-xs">Quests</span>
+          </Link>
+          <Link href="/dashboard/family" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+            <span className="text-xl">👨‍👩‍👧‍👦</span>
+            <span className="text-xs">Family</span>
           </Link>
           <Link href="/dashboard/badges" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">🏅</span>
