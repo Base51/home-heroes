@@ -51,7 +51,7 @@ export default function TasksPage() {
       // Get family
       const userFamily = await getUserFamily()
       if (!userFamily) {
-        router.push('/setup')
+        router.push('/onboarding')
         return
       }
       setFamily(userFamily)

@@ -41,7 +41,7 @@ export default function BadgesPage() {
 
       const userFamily = await getUserFamily()
       if (!userFamily) {
-        router.push('/setup')
+        router.push('/onboarding')
         return
       }
       setFamily(userFamily)

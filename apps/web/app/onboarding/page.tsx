@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { createFamilyWithParent, addKidToFamily, type HeroType } from '@/lib/family'
 import { createTask, completeTask } from '@/lib/tasks'
 
-type OnboardingStep = 'launch' | 'hero' | 'task' | 'complete' | 'reward' | 'family' | 'dashboard'
+type OnboardingStep = 'launch' | 'hero' | 'task' | 'complete' | 'reward' | 'family' | 'signup' | 'dashboard'
 
 const HERO_OPTIONS: { type: HeroType; emoji: string; label: string }[] = [
   { type: 'super_mommy', emoji: '🦸‍♀️', label: 'Super Mommy' },
@@ -33,6 +34,14 @@ export default function OnboardingPage() {
   const [progress, setProgress] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [authError, setAuthError] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
+  
   // Hero state
   const [selectedHero, setSelectedHero] = useState<HeroType>('super_mommy')
   const [heroName, setHeroName] = useState('')
@@ -44,43 +53,43 @@ export default function OnboardingPage() {
   
   // Family/Hero creation state
   const [completing, setCompleting] = useState(false)
-  const [createdFamilyId, setCreatedFamilyId] = useState<string | null>(null)
-  const [createdHeroId, setCreatedHeroId] = useState<string | null>(null)
-  const [createdMemberId, setCreatedMemberId] = useState<string | null>(null)
-  const [createdTaskId, setCreatedTaskId] = useState<string | null>(null)
   const [earnedXp, setEarnedXp] = useState(0)
+  
+  // Pending data (saved before signup)
+  const [pendingTaskTitle, setPendingTaskTitle] = useState('')
+  const [pendingTaskXp, setPendingTaskXp] = useState(10)
   
   // Add family member state
   const [showAddKidModal, setShowAddKidModal] = useState(false)
   const [newKidName, setNewKidName] = useState('')
   const [newKidHeroName, setNewKidHeroName] = useState('')
   const [newKidHeroType, setNewKidHeroType] = useState<'kid_male' | 'kid_female'>('kid_male')
-  const [addingKid, setAddingKid] = useState(false)
   const [addedKids, setAddedKids] = useState<{ name: string; heroName: string; emoji: string }[]>([])
+  const [pendingKids, setPendingKids] = useState<{ name: string; heroName: string; heroType: 'kid_male' | 'kid_female' }[]>([])
   
   // Animation states
   const [showXpAnimation, setShowXpAnimation] = useState(false)
   const [showStarsAnimation, setShowStarsAnimation] = useState(false)
   const [highlightIndex, setHighlightIndex] = useState(0)
 
-  // Check if user is authenticated
+  // Check if user is already authenticated on mount
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        localStorage.setItem('home-heroes-onboarding', 'true')
-        router.push('/signup')
+      if (session) {
+        setIsAuthenticated(true)
       }
     })
-  }, [router])
+  }, [])
 
   function getProgressPercent(s: OnboardingStep): number {
     switch (s) {
       case 'launch': return 0
-      case 'hero': return 10
-      case 'task': return 30
-      case 'complete': return 50
-      case 'reward': return 70
-      case 'family': return 85
+      case 'hero': return 12
+      case 'task': return 25
+      case 'complete': return 40
+      case 'reward': return 55
+      case 'family': return 70
+      case 'signup': return 85
       case 'dashboard': return 100
       default: return 0
     }
@@ -94,8 +103,17 @@ export default function OnboardingPage() {
     setIsTransitioning(false)
   }
 
-  async function handleLaunchTap() {
-    await goToStep('hero')
+  function handleGetStarted() {
+    goToStep('hero')
+  }
+
+  function handleAlreadyHaveAccount() {
+    router.push('/login?redirect=/onboarding')
+  }
+
+  function handleGuestSignIn() {
+    // Future: implement guest sign-in for other parents/kids
+    alert('Guest sign-in coming soon!')
   }
 
   async function handleHeroContinue() {
@@ -106,13 +124,114 @@ export default function OnboardingPage() {
     await goToStep('task')
   }
 
-  async function handleTaskStart() {
+  async function handleTaskSelect() {
+    // Save the task info for later creation after signup
+    const taskTitle = customTaskTitle.trim() || selectedTask.title
+    const taskXp = customTaskTitle.trim() ? 10 : selectedTask.xp
+    setPendingTaskTitle(taskTitle)
+    setPendingTaskXp(taskXp)
+    setEarnedXp(taskXp)
+    await goToStep('complete')
+  }
+
+  async function handleCompleteTask() {
+    // Simulate task completion (actual creation happens after signup)
     setCompleting(true)
+    await new Promise(r => setTimeout(r, 800))
+    setCompleting(false)
+    
+    // Go to reward screen
+    await goToStep('reward')
+    
+    // Start animations
+    setTimeout(() => setShowXpAnimation(true), 300)
+    setTimeout(() => setShowStarsAnimation(true), 800)
+  }
+
+  async function handleRewardContinue() {
+    await goToStep('family')
+  }
+
+  function handleAddKidPending() {
+    if (!newKidName.trim() || !newKidHeroName.trim()) return
+    
+    const kidEmoji = KID_OPTIONS.find(k => k.type === newKidHeroType)?.emoji || '👤'
+    
+    // Save kid for later creation after signup
+    setPendingKids(prev => [...prev, {
+      name: newKidName.trim(),
+      heroName: newKidHeroName.trim(),
+      heroType: newKidHeroType,
+    }])
+    
+    setAddedKids(prev => [...prev, { 
+      name: newKidName.trim(), 
+      heroName: newKidHeroName.trim(),
+      emoji: kidEmoji 
+    }])
+    
+    setNewKidName('')
+    setNewKidHeroName('')
+    setShowAddKidModal(false)
+  }
+
+  async function handleFamilyContinue() {
+    // If already authenticated, create everything now
+    if (isAuthenticated) {
+      await createAllData()
+      await goToStep('dashboard')
+      startDashboardHighlights()
+    } else {
+      await goToStep('signup')
+    }
+  }
+
+  async function handleSignUp(e: React.FormEvent) {
+    e.preventDefault()
+    setAuthError('')
+    
+    if (password !== confirmPassword) {
+      setAuthError('Passwords do not match')
+      return
+    }
+    
+    if (password.length < 6) {
+      setAuthError('Password must be at least 6 characters')
+      return
+    }
+    
+    setAuthLoading(true)
     
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
       
+      if (error) {
+        setAuthError(error.message)
+        setAuthLoading(false)
+        return
+      }
+      
+      if (data.user) {
+        setIsAuthenticated(true)
+        
+        // Now create all the data with the authenticated user
+        await createAllData()
+        
+        await goToStep('dashboard')
+        startDashboardHighlights()
+      }
+    } catch {
+      setAuthError('An unexpected error occurred')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  async function createAllData() {
+    try {
       const finalHeroName = heroName.trim() || HERO_OPTIONS.find(h => h.type === selectedHero)?.label || 'Hero'
       const finalFamilyName = familyName.trim() || 'The Heroes'
       
@@ -126,117 +245,43 @@ export default function OnboardingPage() {
       
       if ('error' in result) {
         console.error('Error creating family:', result.error)
-        setCompleting(false)
         return
       }
       
-      setCreatedFamilyId(result.family.id)
-      setCreatedHeroId(result.hero.id)
-      setCreatedMemberId(result.member.id)
-      
       // Create the first task
-      const taskTitle = customTaskTitle.trim() || selectedTask.title
-      const taskXp = customTaskTitle.trim() ? 10 : selectedTask.xp
-      
       const task = await createTask({
         familyId: result.family.id,
-        title: taskTitle,
+        title: pendingTaskTitle,
         description: 'Your first heroic task!',
-        xpReward: taskXp,
+        xpReward: pendingTaskXp,
         frequency: 'daily',
         createdByMemberId: result.member.id,
       })
       
       if (task) {
-        setCreatedTaskId(task.id)
-        setEarnedXp(taskXp)
+        // Complete the task
+        await completeTask({
+          taskId: task.id,
+          heroId: result.hero.id,
+          xpReward: pendingTaskXp,
+        })
       }
       
-      await goToStep('complete')
-    } catch (error) {
-      console.error('Error during onboarding:', error)
-    } finally {
-      setCompleting(false)
-    }
-  }
-
-  async function handleCompleteTask() {
-    if (!createdHeroId || !createdTaskId) return
-    
-    setCompleting(true)
-    
-    try {
-      // Actually complete the task
-      await completeTask({
-        taskId: createdTaskId,
-        heroId: createdHeroId,
-        xpReward: earnedXp,
-      })
-      
-      // Go to reward screen
-      await goToStep('reward')
-      
-      // Start animations
-      setTimeout(() => setShowXpAnimation(true), 300)
-      setTimeout(() => setShowStarsAnimation(true), 800)
-    } catch (error) {
-      console.error('Error completing task:', error)
-    } finally {
-      setCompleting(false)
-    }
-  }
-
-  async function handleRewardContinue() {
-    await goToStep('family')
-  }
-
-  async function handleAddKid() {
-    if (!createdFamilyId || !newKidName.trim() || !newKidHeroName.trim()) return
-    
-    setAddingKid(true)
-    try {
-      const result = await addKidToFamily(
-        createdFamilyId,
-        newKidName.trim(),
-        newKidHeroName.trim(),
-        newKidHeroType
-      )
-      
-      if (!('error' in result)) {
-        const kidEmoji = KID_OPTIONS.find(k => k.type === newKidHeroType)?.emoji || '👤'
-        setAddedKids(prev => [...prev, { 
-          name: newKidName.trim(), 
-          heroName: newKidHeroName.trim(),
-          emoji: kidEmoji 
-        }])
-        setNewKidName('')
-        setNewKidHeroName('')
-        setShowAddKidModal(false)
+      // Add any pending kids
+      for (const kid of pendingKids) {
+        await addKidToFamily(
+          result.family.id,
+          kid.name,
+          kid.heroName,
+          kid.heroType
+        )
       }
     } catch (error) {
-      console.error('Error adding kid:', error)
-    } finally {
-      setAddingKid(false)
+      console.error('Error creating data:', error)
     }
   }
 
-  async function handleFamilyContinue() {
-    await goToStep('dashboard')
-    // Start highlight sequence
-    setHighlightIndex(0)
-    const interval = setInterval(() => {
-      setHighlightIndex(prev => {
-        if (prev >= 2) {
-          clearInterval(interval)
-          return prev
-        }
-        return prev + 1
-      })
-    }, 1500)
-  }
-
-  async function handleFamilySkip() {
-    await goToStep('dashboard')
+  function startDashboardHighlights() {
     setHighlightIndex(0)
     const interval = setInterval(() => {
       setHighlightIndex(prev => {
@@ -258,21 +303,19 @@ export default function OnboardingPage() {
   function getStepLabel(): string {
     switch (step) {
       case 'launch': return 'Welcome'
-      case 'hero': return 'Step 1 of 6'
-      case 'task': return 'Step 2 of 6'
-      case 'complete': return 'Step 3 of 6'
-      case 'reward': return 'Step 4 of 6'
-      case 'family': return 'Step 5 of 6'
-      case 'dashboard': return 'Step 6 of 6'
+      case 'hero': return 'Step 1 of 7'
+      case 'task': return 'Step 2 of 7'
+      case 'complete': return 'Step 3 of 7'
+      case 'reward': return 'Step 4 of 7'
+      case 'family': return 'Step 5 of 7'
+      case 'signup': return 'Step 6 of 7'
+      case 'dashboard': return 'Step 7 of 7'
       default: return ''
     }
   }
 
   return (
-    <div 
-      className="min-h-screen bg-gradient-to-b from-blue-600 via-purple-600 to-pink-500 flex flex-col relative overflow-hidden"
-      onClick={step === 'launch' ? handleLaunchTap : undefined}
-    >
+    <div className="min-h-screen bg-gradient-to-b from-blue-600 via-purple-600 to-pink-500 flex flex-col relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 text-6xl opacity-20 animate-bounce-slow">⭐</div>
@@ -281,8 +324,8 @@ export default function OnboardingPage() {
         <div className="absolute bottom-20 right-10 text-4xl opacity-20 animate-bounce-slow" style={{ animationDelay: '1.5s' }}>💫</div>
       </div>
 
-      {/* Progress bar */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-white/20 z-50">
+      {/* Progress bar - always visible */}
+      <div className="absolute top-0 left-0 right-0 h-2 bg-white/20 z-50">
         <div 
           className="h-full bg-gradient-to-r from-yellow-400 to-amber-500 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
@@ -294,24 +337,46 @@ export default function OnboardingPage() {
         
         {/* Step 1: Launch Screen */}
         {step === 'launch' && (
-          <div className="text-center animate-fade-in cursor-pointer">
+          <div className="text-center animate-fade-in w-full max-w-sm">
             <div className="mb-8">
-              <div className="w-32 h-32 mx-auto mb-6 bg-white/10 rounded-3xl flex items-center justify-center backdrop-blur-sm border border-white/20">
-                <span className="text-7xl">🦸</span>
+              {/* Logo */}
+              <div className="flex justify-center mb-6">
+                <Image 
+                  src="/home-heroes-logo.png" 
+                  alt="Home Heroes" 
+                  width={280} 
+                  height={84}
+                  priority
+                  className="h-20 w-auto"
+                />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Home Heroes
-              </h1>
-              <p className="text-xl text-white/80 max-w-xs mx-auto">
+              <p className="text-xl text-white/90 max-w-xs mx-auto font-medium">
                 Turn everyday tasks into heroic wins.
               </p>
             </div>
-            <button className="px-12 py-4 bg-white text-purple-600 font-bold text-xl rounded-2xl shadow-2xl hover:scale-105 transition-transform active:scale-95">
-              Start
-            </button>
-            <p className="mt-6 text-white/50 text-sm">
-              Tap anywhere to continue
-            </p>
+            
+            <div className="space-y-4">
+              <button 
+                onClick={handleGetStarted}
+                className="w-full px-8 py-4 bg-white text-purple-600 font-bold text-xl rounded-2xl shadow-2xl hover:scale-105 transition-transform active:scale-95"
+              >
+                Get Started
+              </button>
+              
+              <button 
+                onClick={handleAlreadyHaveAccount}
+                className="w-full px-8 py-4 bg-white/20 text-white font-semibold text-lg rounded-2xl border-2 border-white/30 hover:bg-white/30 transition-all"
+              >
+                I Already Have an Account
+              </button>
+              
+              <button 
+                onClick={handleGuestSignIn}
+                className="w-full px-8 py-3 text-white/60 font-medium text-base rounded-xl hover:text-white/80 transition-colors"
+              >
+                Guest Sign-In
+              </button>
+            </div>
           </div>
         )}
 
@@ -323,7 +388,7 @@ export default function OnboardingPage() {
                 Choose Your Hero
               </h2>
               <p className="text-white/70">
-                Who will lead your family's adventures?
+                Who will lead your family&apos;s adventures?
               </p>
             </div>
 
@@ -368,10 +433,10 @@ export default function OnboardingPage() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => goToStep('task')}
+                onClick={() => goToStep('launch')}
                 className="flex-1 py-4 text-white/70 font-medium rounded-xl hover:text-white transition-colors"
               >
-                Skip
+                Back
               </button>
               <button
                 onClick={handleHeroContinue}
@@ -446,23 +511,21 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            <button
-              onClick={handleTaskStart}
-              disabled={completing}
-              className="w-full py-5 bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 font-bold text-xl rounded-2xl shadow-xl hover:scale-[1.02] transition-transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-            >
-              {completing ? (
-                <>
-                  <span className="inline-block w-6 h-6 border-3 border-gray-900 border-t-transparent rounded-full animate-spin"></span>
-                  Setting up...
-                </>
-              ) : (
-                <>
-                  <span>Start First Task</span>
-                  <span className="text-2xl">🚀</span>
-                </>
-              )}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => goToStep('hero')}
+                className="flex-1 py-4 text-white/70 font-medium rounded-xl hover:text-white transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleTaskSelect}
+                className="flex-[2] py-5 bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 font-bold text-xl rounded-2xl shadow-xl hover:scale-[1.02] transition-transform active:scale-[0.98] flex items-center justify-center gap-3"
+              >
+                <span>Select Task</span>
+                <span className="text-2xl">🚀</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -474,7 +537,7 @@ export default function OnboardingPage() {
                 {customTaskTitle ? '⭐' : selectedTask.emoji}
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                {customTaskTitle || selectedTask.title}
+                {pendingTaskTitle || customTaskTitle || selectedTask.title}
               </h3>
               <p className="text-gray-500 mb-6">
                 Your first heroic quest awaits!
@@ -608,7 +671,7 @@ export default function OnboardingPage() {
               </button>
 
               <button
-                onClick={handleFamilySkip}
+                onClick={handleFamilyContinue}
                 className="w-full py-4 text-white/70 font-medium rounded-xl hover:text-white transition-colors"
               >
                 {addedKids.length > 0 ? 'Continue' : 'Do this later'}
@@ -665,15 +728,11 @@ export default function OnboardingPage() {
                       Cancel
                     </button>
                     <button
-                      onClick={handleAddKid}
-                      disabled={addingKid || !newKidName.trim() || !newKidHeroName.trim()}
+                      onClick={handleAddKidPending}
+                      disabled={!newKidName.trim() || !newKidHeroName.trim()}
                       className="flex-1 py-3 bg-purple-600 text-white font-bold rounded-xl disabled:opacity-50 flex items-center justify-center"
                     >
-                      {addingKid ? (
-                        <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                      ) : (
-                        'Add'
-                      )}
+                      Add
                     </button>
                   </div>
                 </div>
@@ -682,14 +741,96 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Step 7: Dashboard Reveal */}
+        {/* Step 7: Sign Up */}
+        {step === 'signup' && (
+          <div className="w-full max-w-md animate-slide-up">
+            <div className="text-center mb-8">
+              <div className="text-5xl mb-4">🔐</div>
+              <h2 className="text-3xl font-bold text-white mb-2">
+                Save Your Progress
+              </h2>
+              <p className="text-white/70">
+                Create an account to keep your hero&apos;s journey!
+              </p>
+            </div>
+
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div>
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-5 py-4 bg-white/20 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/30 transition-all text-lg"
+                />
+              </div>
+
+              <div>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full px-5 py-4 bg-white/20 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/30 transition-all text-lg"
+                />
+              </div>
+
+              <div>
+                <input
+                  type="password"
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full px-5 py-4 bg-white/20 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/30 transition-all text-lg"
+                />
+              </div>
+
+              {authError && (
+                <div className="p-4 bg-red-500/20 border border-red-400/50 rounded-xl text-red-100 text-sm">
+                  {authError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-5 bg-white text-purple-600 font-bold text-xl rounded-2xl shadow-xl hover:scale-[1.02] transition-transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              >
+                {authLoading ? (
+                  <>
+                    <span className="inline-block w-6 h-6 border-3 border-purple-600 border-t-transparent rounded-full animate-spin"></span>
+                    Creating account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => goToStep('family')}
+                className="text-white/60 hover:text-white transition-colors"
+              >
+                ← Back
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 8: Dashboard Reveal */}
         {step === 'dashboard' && (
           <div className="w-full max-w-md animate-slide-up">
             {/* Success banner */}
             <div className="bg-gradient-to-r from-yellow-400 to-amber-500 rounded-2xl p-4 mb-6 text-center shadow-xl">
               <div className="text-3xl mb-2">🎉</div>
               <h2 className="text-xl font-bold text-gray-900">
-                You're officially a Home Hero!
+                You&apos;re officially a Home Hero!
               </h2>
             </div>
 
@@ -763,7 +904,7 @@ export default function OnboardingPage() {
               onClick={handleFinish}
               className="w-full py-5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-xl rounded-2xl shadow-xl hover:scale-[1.02] transition-transform active:scale-[0.98] flex items-center justify-center gap-3"
             >
-              <span>Let's go!</span>
+              <span>Let&apos;s go!</span>
               <span className="text-2xl">🚀</span>
             </button>
           </div>

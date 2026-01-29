@@ -38,9 +38,9 @@ export default function DashboardPage() {
         console.log('🔵 Dashboard: Family check result:', userFamily)
         
         if (!userFamily) {
-          console.log('🔴 Dashboard: No family found, redirecting to setup')
+          console.log('🔴 Dashboard: No family found, redirecting to onboarding')
           setCheckingFamily(false)
-          router.push('/setup')
+          router.push('/onboarding')
           return
         }
 

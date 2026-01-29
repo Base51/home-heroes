@@ -47,7 +47,7 @@ export default function ProfilePage() {
 
       const userFamily = await getUserFamily()
       if (!userFamily) {
-        router.push('/setup')
+        router.push('/onboarding')
         return
       }
       setFamily(userFamily)
@@ -217,7 +217,7 @@ export default function ProfilePage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="text-center">
           <p className="text-gray-600 dark:text-gray-400">No hero found</p>
-          <Link href="/setup" className="text-blue-600 hover:underline mt-2 inline-block">
+          <Link href="/onboarding" className="text-blue-600 hover:underline mt-2 inline-block">
             Create your hero →
           </Link>
         </div>
