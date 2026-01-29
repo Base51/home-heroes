@@ -181,12 +181,12 @@ export default function DashboardPage() {
         </div>
 
         {/* D) Family Avatars with Streaks */}
-        <div className="flex justify-center mb-6">
+        <Link href="/dashboard/family" className="flex justify-center mb-6 group">
           <div className="flex -space-x-3">
             {familyMembers.slice(0, 6).map((member: any, index: number) => (
               <div
                 key={member.id}
-                className="relative"
+                className="relative group-hover:scale-105 transition-transform"
                 style={{ zIndex: familyMembers.length - index }}
               >
                 <div
@@ -207,7 +207,7 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+        </Link>
 
         {/* Family Streak Summary */}
         {familyMembers.length > 0 && (
@@ -263,21 +263,29 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Settings button (temporary) */}
-        <div className="mt-6 flex gap-3">
+        {/* Quick Actions */}
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <Link
+            href="/dashboard/family"
+            className="px-4 py-3 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+          >
+            👨‍👩‍👧‍👦 Family
+          </Link>
           <Link
             href="/settings"
-            className="flex-1 px-4 py-2 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg"
+            className="px-4 py-3 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
           >
             ⚙️ Settings
           </Link>
-          <button
-            onClick={handleSignOut}
-            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-          >
-            Sign Out
-          </button>
         </div>
+
+        {/* Sign Out Button */}
+        <button
+          onClick={handleSignOut}
+          className="w-full mt-3 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-sm"
+        >
+          Sign Out
+        </button>
       </main>
 
       {/* Bottom Navigation */}

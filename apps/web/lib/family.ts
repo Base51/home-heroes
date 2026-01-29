@@ -226,3 +226,111 @@ export async function getFamilyMembersWithHeroes(familyId: string) {
 
   return data
 }
+
+/**
+ * Update a family member's details
+ */
+export async function updateFamilyMember(
+  memberId: string,
+  updates: { display_name?: string }
+): Promise<FamilyMember | null> {
+  const { data, error } = await supabase
+    .from('family_members')
+    .update(updates)
+    .eq('id', memberId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating family member:', error)
+    return null
+  }
+
+  return data
+}
+
+/**
+ * Update a hero's details
+ */
+export async function updateHero(
+  heroId: string,
+  updates: { hero_name?: string; hero_type?: HeroType }
+): Promise<Hero | null> {
+  const { data, error } = await supabase
+    .from('heroes')
+    .update(updates)
+    .eq('id', heroId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating hero:', error)
+    return null
+  }
+
+  return data
+}
+
+/**
+ * Remove a family member and their hero (kids only)
+ * Parents cannot be removed
+ */
+export async function removeFamilyMember(memberId: string): Promise<boolean> {
+  // First check if this is a kid (parents cannot be removed)
+  const { data: member } = await supabase
+    .from('family_members')
+    .select('role')
+    .eq('id', memberId)
+    .single()
+
+  if (!member || member.role === 'parent') {
+    console.error('Cannot remove parent or member not found')
+    return false
+  }
+
+  // Delete the hero first (foreign key constraint)
+  const { error: heroError } = await supabase
+    .from('heroes')
+    .delete()
+    .eq('family_member_id', memberId)
+
+  if (heroError) {
+    console.error('Error deleting hero:', heroError)
+    return false
+  }
+
+  // Then delete the family member
+  const { error: memberError } = await supabase
+    .from('family_members')
+    .delete()
+    .eq('id', memberId)
+
+  if (memberError) {
+    console.error('Error deleting family member:', memberError)
+    return false
+  }
+
+  return true
+}
+
+/**
+ * Update family name
+ */
+export async function updateFamilyName(
+  familyId: string,
+  newName: string
+): Promise<Family | null> {
+  const { data, error } = await supabase
+    .from('families')
+    .update({ name: newName })
+    .eq('id', familyId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating family name:', error)
+    return null
+  }
+
+  return data
+}
