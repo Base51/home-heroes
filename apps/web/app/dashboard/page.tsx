@@ -119,8 +119,13 @@ export default function DashboardPage() {
               {family?.name || 'Home Heroes'}
             </span>
           </div>
-          <div className="px-3 py-1 bg-amber-400 rounded-full font-bold text-sm text-gray-900">
-            Lv. {familyLevel}
+          <div className="flex items-center gap-3">
+            <div className="px-3 py-1 bg-amber-400 rounded-full font-bold text-sm text-gray-900">
+              Lv. {familyLevel}
+            </div>
+            <Link href="/dashboard/profile" className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-lg hover:ring-2 hover:ring-blue-500 transition-all">
+              👤
+            </Link>
           </div>
         </div>
       </div>

@@ -214,14 +214,19 @@ export default function QuestsPage() {
               🗺️ Quests
             </h1>
           </div>
-          {member?.role === 'parent' && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors text-sm"
-            >
-              + New Quest
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {member?.role === 'parent' && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors text-sm"
+              >
+                + New Quest
+              </button>
+            )}
+            <Link href="/dashboard/profile" className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-lg hover:ring-2 hover:ring-blue-500 transition-all">
+              👤
+            </Link>
+          </div>
         </div>
       </div>
 
