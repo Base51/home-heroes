@@ -168,7 +168,7 @@ import { utils } from "@/lib/utils";
 - **Client location**: [apps/web/lib/supabase.ts](../apps/web/lib/supabase.ts)
 - **Usage pattern**: Import with `import { supabase } from '@/lib/supabase'`
 - **Required env vars**: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`
-- **Example usage**: See [apps/web/app/page.tsx](../apps/web/app/page.tsx) for session check pattern
+- **Example usage**: See [apps/web/app/(marketing)/page.tsx](../apps/web/app/(marketing)/page.tsx) for session check pattern
 - **Client-side pattern**: Use `'use client'` directive when accessing Supabase in components
 - **Future**: Move client to `packages/api` when implementing shared logic for mobile
 
