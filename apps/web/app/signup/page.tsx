@@ -52,8 +52,8 @@ export default function SignUpPage() {
 
     try {
       await signUp({ email, password, displayName: displayName.trim() })
-      // Redirect to login or show success message
-      router.push('/login?message=Check your email to confirm your account')
+      // Redirect to onboarding flow
+      router.push('/onboarding')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign up')
     } finally {
