@@ -526,31 +526,63 @@ export function getBadgesByCategory(): Record<BadgeDefinition['category'], Badge
 }
 
 /**
- * Get next badges to earn in each category
+ * Get next badges to earn in each category (uses database badges)
  */
 export async function getNextBadges(heroId: string): Promise<BadgeDefinition[]> {
-  const stats = await getHeroStats(heroId)
-  const { data: earnedBadges } = await supabase
-    .from('hero_badges')
-    .select('badge_id')
-    .eq('hero_id', heroId)
-  
-  const earnedIds = new Set((earnedBadges || []).map(b => b.badge_id))
-  
-  const categories: BadgeDefinition['category'][] = ['tasks', 'quests', 'streaks', 'xp']
-  const nextBadges: BadgeDefinition[] = []
-  
-  for (const category of categories) {
-    const categoryBadges = BADGE_DEFINITIONS
-      .filter(b => b.category === category && !earnedIds.has(b.id))
-      .sort((a, b) => a.requirement.value - b.requirement.value)
+  try {
+    const stats = await getHeroStats(heroId)
     
-    if (categoryBadges.length > 0) {
-      nextBadges.push(categoryBadges[0])
+    // Get all active badges from database
+    const { data: dbBadges, error: badgesError } = await supabase
+      .from('badges')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true })
+    
+    if (badgesError || !dbBadges) {
+      console.error('Error fetching badges:', badgesError)
+      return []
     }
+    
+    // Get already earned badges
+    const { data: earnedBadges } = await supabase
+      .from('hero_badges')
+      .select('badge_id')
+      .eq('hero_id', heroId)
+    
+    const earnedIds = new Set((earnedBadges || []).map(b => b.badge_id))
+    
+    // Group by category and find next unearned badge in each
+    const categoryMap: Record<string, BadgeDefinition | null> = {
+      tasks: null,
+      quests: null,
+      streaks: null,
+      xp: null,
+    }
+    
+    for (const dbBadge of dbBadges as DBBadge[]) {
+      // Skip if already earned
+      if (earnedIds.has(dbBadge.id)) continue
+      
+      const badgeDef = convertDBBadge(dbBadge)
+      const category = badgeDef.category
+      
+      // Only track categories we care about
+      if (!(category in categoryMap)) continue
+      
+      // If we don't have one for this category yet, use this one
+      // (badges are ordered by display_order, so first unearned is the "next" one)
+      if (!categoryMap[category]) {
+        categoryMap[category] = badgeDef
+      }
+    }
+    
+    // Return non-null badges
+    return Object.values(categoryMap).filter((b): b is BadgeDefinition => b !== null)
+  } catch (error) {
+    console.error('Error getting next badges:', error)
+    return []
   }
-  
-  return nextBadges
 }
 
 /**
