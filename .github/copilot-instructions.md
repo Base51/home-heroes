@@ -125,6 +125,30 @@ import { utils } from "@/lib/utils";
 - **Layout**: Root layout at [apps/web/app/layout.tsx](../apps/web/app/layout.tsx) with Geist fonts
 - **Global styles**: [apps/web/app/globals.css](../apps/web/app/globals.css)
 
+### Current Pages & Routes
+| Route | Purpose |
+|-------|---------|
+| `/` | Landing page (redirects to dashboard if authenticated) |
+| `/onboarding` | 8-step onboarding flow (signup at end) |
+| `/login` | Parent login |
+| `/signup` | Parent signup |
+| `/dashboard` | Home HQ (Today's tasks) |
+| `/dashboard/tasks` | All tasks management |
+| `/dashboard/quests` | Quests management |
+| `/dashboard/family` | Family members & heroes |
+| `/dashboard/badges` | Badges collection |
+| `/dashboard/profile` | Hero profile |
+| `/settings` | App settings |
+
+### Bottom Navigation (5 items)
+| Icon | Label | Route |
+|------|-------|-------|
+| ⭐ | Today | `/dashboard` |
+| ✓ | Tasks | `/dashboard/tasks` |
+| 🗺️ | Quests | `/dashboard/quests` |
+| 👨‍👩‍👧‍👦 | Family | `/dashboard/family` |
+| 🏅 | Badges | `/dashboard/badges` |
+
 ### MVP Scope (See [docs/01_product_scope_mvp.md](../docs/01_product_scope_mvp.md))
 **IN SCOPE**:
 - Family/hero creation, tasks, quests, XP, levels, streaks, badges

@@ -118,30 +118,57 @@ Heroes can belong to:
 
 ### 3.9 Home HQ Dashboard
 The Home HQ Dashboard must display:
-- Available tasks
-- Available quests
-- Family member / hero containers showing:
-  - Avatar
-  - Level
-  - XP bar
-  - Streak
-- Recent activity feed (in-app)
+- Family emblem with level badge
+- Family XP progress bar
+- Family member avatars with streak indicators
+- Today's tasks (from database, up to 5)
+- Task completion buttons with instant XP reward
+- Family streak summary
 
 ---
 
 ### 3.10 Navigation
 Required pages:
-- Home HQ Dashboard
+- Home HQ Dashboard (Today)
 - Tasks Page
 - Quests Page
 - Family Page
+- Badges Page
 - Profile Page
-- Help Page
+- Settings Page
+
+Bottom Navigation (5 items):
+| Icon | Label | Route |
+|------|-------|-------|
+| ⭐ | Today | `/dashboard` |
+| ✓ | Tasks | `/dashboard/tasks` |
+| 🗺️ | Quests | `/dashboard/quests` |
+| 👨‍👩‍👧‍👦 | Family | `/dashboard/family` |
+| 🏅 | Badges | `/dashboard/badges` |
 
 Navigation must be:
 - Mobile-first
 - Simple
 - Shallow (no deep nesting)
+
+---
+
+### 3.11 Onboarding Flow
+The onboarding flow has 8 steps (signup at the END):
+
+1. **Launch** - Welcome screen with branding
+2. **Hero** - Choose parent hero type (Super Mommy/Daddy) and name
+3. **Task** - Create first task from suggestions
+4. **Complete** - Simulate completing the task
+5. **Reward** - Show XP reward animation
+6. **Family** - Optionally add kids
+7. **Signup** - Create account (email/password)
+8. **Dashboard** - Tour of main features
+
+Key principles:
+- Let users experience the app BEFORE creating an account
+- Pending data (hero, task, kids) is saved after signup
+- Default daily tasks are created automatically
 
 ---
 
