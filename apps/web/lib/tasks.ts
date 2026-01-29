@@ -303,3 +303,89 @@ export async function getTaskCompletionHistory(
 
   return data || []
 }
+
+/**
+ * Pre-built daily tasks for new families
+ * These provide a good starting point for household productivity
+ */
+export const DEFAULT_DAILY_TASKS = [
+  { title: 'Make your bed', description: 'Start the day by making your bed nice and tidy', xp_reward: 5, icon: '🛏️' },
+  { title: 'Brush your teeth', description: 'Morning and evening dental hygiene', xp_reward: 5, icon: '🦷' },
+  { title: 'Clean your room', description: 'Keep your personal space organized', xp_reward: 10, icon: '🧹' },
+  { title: 'Do homework', description: 'Complete today\'s school assignments', xp_reward: 15, icon: '📚' },
+  { title: 'Set the table', description: 'Help prepare for family meals', xp_reward: 5, icon: '🍽️' },
+  { title: 'Clear your dishes', description: 'Take your dishes to the kitchen after eating', xp_reward: 5, icon: '🍲' },
+  { title: 'Read for 15 minutes', description: 'Reading time builds great habits', xp_reward: 10, icon: '📖' },
+  { title: 'Practice an instrument', description: 'Keep improving your musical skills', xp_reward: 15, icon: '🎵' },
+  { title: 'Exercise or play outside', description: 'Stay active and healthy', xp_reward: 10, icon: '⚽' },
+  { title: 'Help with laundry', description: 'Sort, fold, or put away clothes', xp_reward: 10, icon: '👕' },
+  { title: 'Water the plants', description: 'Take care of our green friends', xp_reward: 5, icon: '🌱' },
+  { title: 'Walk the dog', description: 'Give our pet some exercise', xp_reward: 10, icon: '🐕' },
+  { title: 'Feed the pets', description: 'Make sure our pets are happy and fed', xp_reward: 5, icon: '🐾' },
+  { title: 'Take out the trash', description: 'Keep the house clean', xp_reward: 5, icon: '🗑️' },
+  { title: 'Tidy up toys', description: 'Put toys back where they belong', xp_reward: 5, icon: '🧸' },
+]
+
+/**
+ * Create default daily tasks for a new family
+ * Called during onboarding to give families a starting set of tasks
+ */
+export async function createDefaultTasks(
+  familyId: string,
+  createdByMemberId: string,
+  taskIndices?: number[] // Optional: only create specific tasks by index
+): Promise<Task[]> {
+  const tasksToCreate = taskIndices 
+    ? taskIndices.map(i => DEFAULT_DAILY_TASKS[i]).filter(Boolean)
+    : DEFAULT_DAILY_TASKS.slice(0, 6) // By default, create first 6 tasks
+  
+  const tasks: Task[] = []
+  
+  for (const taskTemplate of tasksToCreate) {
+    const task = await createTask({
+      familyId,
+      title: taskTemplate.title,
+      description: taskTemplate.description,
+      xpReward: taskTemplate.xp_reward,
+      frequency: 'daily',
+      createdByMemberId,
+    })
+    if (task) tasks.push(task)
+  }
+  
+  return tasks
+}
+
+/**
+ * Get task icon based on title (for display purposes)
+ */
+export function getTaskIcon(title: string): string {
+  const lowerTitle = title.toLowerCase()
+  
+  // Check against known tasks
+  for (const task of DEFAULT_DAILY_TASKS) {
+    if (task.title.toLowerCase() === lowerTitle) {
+      return task.icon
+    }
+  }
+  
+  // Fallback icon matching based on keywords
+  if (lowerTitle.includes('bed')) return '🛏️'
+  if (lowerTitle.includes('teeth') || lowerTitle.includes('brush')) return '🦷'
+  if (lowerTitle.includes('clean') || lowerTitle.includes('tidy')) return '🧹'
+  if (lowerTitle.includes('homework') || lowerTitle.includes('study')) return '📚'
+  if (lowerTitle.includes('table') || lowerTitle.includes('dishes')) return '🍽️'
+  if (lowerTitle.includes('read')) return '📖'
+  if (lowerTitle.includes('music') || lowerTitle.includes('instrument') || lowerTitle.includes('practice')) return '🎵'
+  if (lowerTitle.includes('exercise') || lowerTitle.includes('sport') || lowerTitle.includes('play')) return '⚽'
+  if (lowerTitle.includes('laundry') || lowerTitle.includes('clothes')) return '👕'
+  if (lowerTitle.includes('plant') || lowerTitle.includes('water')) return '🌱'
+  if (lowerTitle.includes('dog') || lowerTitle.includes('walk')) return '🐕'
+  if (lowerTitle.includes('pet') || lowerTitle.includes('feed')) return '🐾'
+  if (lowerTitle.includes('trash') || lowerTitle.includes('garbage')) return '🗑️'
+  if (lowerTitle.includes('toy')) return '🧸'
+  if (lowerTitle.includes('cook') || lowerTitle.includes('meal')) return '👨‍🍳'
+  if (lowerTitle.includes('shower') || lowerTitle.includes('bath')) return '🚿'
+  
+  return '✨' // Default icon
+}

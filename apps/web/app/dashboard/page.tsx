@@ -6,8 +6,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/auth'
-import { getUserFamily, getFamilyMembersWithHeroes, type Family } from '@/lib/family'
+import { getUserFamily, getFamilyMembersWithHeroes, getCurrentFamilyMember, getHeroByFamilyMemberId, type Family } from '@/lib/family'
 import { getStreakEmoji } from '@/lib/streaks'
+import { getLevelInfo } from '@/lib/levels'
+import { getTasksWithCompletionStatus, completeTask, getTaskIcon, type TaskWithCompletions } from '@/lib/tasks'
 import type { User } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
@@ -15,6 +17,9 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [family, setFamily] = useState<Family | null>(null)
   const [familyMembers, setFamilyMembers] = useState<any[]>([])
+  const [currentHero, setCurrentHero] = useState<any | null>(null)
+  const [tasks, setTasks] = useState<TaskWithCompletions[]>([])
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [checkingFamily, setCheckingFamily] = useState(true)
 
@@ -52,6 +57,19 @@ export default function DashboardPage() {
         const members = await getFamilyMembersWithHeroes(userFamily.id)
         console.log('✅ Dashboard: Loaded', members.length, 'family members')
         setFamilyMembers(members)
+        
+        // Get current member and hero for task completion
+        const currentMember = await getCurrentFamilyMember()
+        if (currentMember) {
+          const hero = await getHeroByFamilyMemberId(currentMember.id)
+          if (hero) {
+            setCurrentHero(hero)
+            // Load tasks with completion status
+            const tasksData = await getTasksWithCompletionStatus(userFamily.id, hero.id)
+            setTasks(tasksData)
+          }
+        }
+        
         setCheckingFamily(false)
       } catch (error) {
         console.error('🔴 Dashboard: Error loading family:', error)
@@ -79,6 +97,36 @@ export default function DashboardPage() {
       // The auth state change listener will handle the redirect
     } catch (error) {
       console.error('Error signing out:', error)
+    }
+  }
+
+  const handleCompleteTask = async (task: TaskWithCompletions) => {
+    if (!currentHero || task.completed_today || completingTaskId) return
+    
+    setCompletingTaskId(task.id)
+    try {
+      const result = await completeTask({
+        taskId: task.id,
+        heroId: currentHero.id,
+        xpReward: task.xp_reward,
+      })
+      
+      if (result) {
+        // Update tasks list to mark as completed
+        setTasks(prev => prev.map(t => 
+          t.id === task.id ? { ...t, completed_today: true } : t
+        ))
+        
+        // Refresh family members to update XP display
+        if (family) {
+          const members = await getFamilyMembersWithHeroes(family.id)
+          setFamilyMembers(members)
+        }
+      }
+    } catch (error) {
+      console.error('Error completing task:', error)
+    } finally {
+      setCompletingTaskId(null)
     }
   }
 
@@ -138,17 +186,15 @@ export default function DashboardPage() {
   }
 
   // Mock data for demo (replace with real data later)
-  const familyLevel = 4
-  const currentXP = 120
-  const nextLevelXP = 200
-  const xpProgress = (currentXP / nextLevelXP) * 100
-
-  const mockTasks = [
-    { id: 1, title: 'Clean your room', xp: 10, icon: '🧹' },
-    { id: 2, title: 'Do homework', xp: 15, icon: '📚' },
-    { id: 3, title: 'Walk the dog', xp: 10, icon: '🐕' },
-    { id: 4, title: 'Set the table', xp: 5, icon: '🍽️' },
-  ]
+  // Calculate family XP from all heroes
+  const totalFamilyXP = familyMembers.reduce((sum: number, member: any) => {
+    return sum + (member.heroes[0]?.total_xp || 0)
+  }, 0)
+  const familyLevelInfo = getLevelInfo(totalFamilyXP)
+  const familyLevel = familyLevelInfo.level
+  const currentXP = familyLevelInfo.xpProgress
+  const nextLevelXP = familyLevelInfo.xpNeeded
+  const xpProgress = familyLevelInfo.progressPercent
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 pb-20">
@@ -278,31 +324,79 @@ export default function DashboardPage() {
 
         {/* E) Today's Tasks */}
         <div className="space-y-3">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white px-2 mb-4">
-            ⭐ Today&apos;s Tasks
-          </h2>
-          
-          {mockTasks.map((task) => (
-            <div
-              key={task.id}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700"
+          <div className="flex items-center justify-between px-2 mb-4">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              ⭐ Today&apos;s Tasks
+            </h2>
+            <Link 
+              href="/dashboard/tasks"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{task.icon}</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {task.title}
+              See all →
+            </Link>
+          </div>
+          
+          {tasks.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-200 dark:border-gray-700 text-center">
+              <p className="text-gray-500 dark:text-gray-400 mb-4">No tasks yet!</p>
+              <Link
+                href="/dashboard/tasks"
+                className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              >
+                Create your first task
+              </Link>
+            </div>
+          ) : (
+            tasks.slice(0, 5).map((task) => (
+              <div
+                key={task.id}
+                className={`bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700 transition-all ${
+                  task.completed_today ? 'opacity-60' : ''
+                }`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{getTaskIcon(task.title)}</span>
+                    <div>
+                      <span className={`font-semibold text-gray-900 dark:text-white ${
+                        task.completed_today ? 'line-through' : ''
+                      }`}>
+                        {task.title}
+                      </span>
+                      {task.description && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+                          {task.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                    +{task.xp_reward} XP
                   </span>
                 </div>
-                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
-                  +{task.xp} XP
-                </span>
+                {task.completed_today ? (
+                  <div className="w-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-bold py-3 rounded-xl text-center">
+                    ✓ Completed!
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => handleCompleteTask(task)}
+                    disabled={completingTaskId === task.id}
+                    className="w-full bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {completingTaskId === task.id ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        Completing...
+                      </span>
+                    ) : (
+                      'Complete ✓'
+                    )}
+                  </button>
+                )}
               </div>
-              <button className="w-full bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95">
-                Complete ✓
-              </button>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Quick Actions */}

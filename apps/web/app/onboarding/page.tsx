@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { createFamilyWithParent, addKidToFamily, type HeroType } from '@/lib/family'
-import { createTask, completeTask } from '@/lib/tasks'
+import { createTask, completeTask, createDefaultTasks } from '@/lib/tasks'
 
 type OnboardingStep = 'launch' | 'hero' | 'task' | 'complete' | 'reward' | 'family' | 'signup' | 'dashboard'
 
@@ -266,6 +266,9 @@ export default function OnboardingPage() {
           xpReward: pendingTaskXp,
         })
       }
+      
+      // Create default daily tasks for the family
+      await createDefaultTasks(result.family.id, result.member.id)
       
       // Add any pending kids
       for (const kid of pendingKids) {
