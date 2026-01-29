@@ -225,6 +225,39 @@ export default function BadgesPage() {
           </div>
         )}
 
+        {/* Recently Earned - Moved up for visibility */}
+        {earnedBadges.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-200 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+              🎉 Recently Earned
+            </h3>
+            <div className="space-y-2">
+              {earnedBadges
+                .sort((a, b) => new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime())
+                .slice(0, 5)
+                .map((badge) => (
+                  <div
+                    key={badge.id}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700"
+                  >
+                    <div className="text-2xl">{badge.emoji}</div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900 dark:text-white">
+                        {badge.name}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(badge.earned_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className={`text-xs px-2 py-1 rounded-full border ${getRarityColor(badge.rarity)}`}>
+                      {badge.rarity}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
         {/* Badge Stats */}
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-md border border-gray-200 dark:border-gray-700">
@@ -329,39 +362,6 @@ export default function BadgesPage() {
             )
           })}
         </div>
-
-        {/* Recently Earned */}
-        {earnedBadges.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-200 dark:border-gray-700">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
-              🎉 Recently Earned
-            </h3>
-            <div className="space-y-2">
-              {earnedBadges
-                .sort((a, b) => new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime())
-                .slice(0, 5)
-                .map((badge) => (
-                  <div
-                    key={badge.id}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700"
-                  >
-                    <div className="text-2xl">{badge.emoji}</div>
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {badge.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(badge.earned_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className={`text-xs px-2 py-1 rounded-full border ${getRarityColor(badge.rarity)}`}>
-                      {badge.rarity}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
       </main>
 
       {/* Bottom Navigation */}
@@ -378,6 +378,10 @@ export default function BadgesPage() {
           <Link href="/dashboard/quests" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">🗺️</span>
             <span className="text-xs">Quests</span>
+          </Link>
+          <Link href="/dashboard/family" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+            <span className="text-xl">👨‍👩‍👧‍👦</span>
+            <span className="text-xs">Family</span>
           </Link>
           <Link href="/dashboard/badges" className="flex-1 py-3 flex flex-col items-center gap-1 text-yellow-600 dark:text-yellow-400 font-semibold border-t-2 border-yellow-500">
             <span className="text-xl">🏅</span>
