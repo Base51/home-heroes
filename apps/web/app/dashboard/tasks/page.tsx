@@ -7,6 +7,8 @@ import { supabase } from '@/lib/supabase'
 import { getUserFamily, getCurrentFamilyMember, getHeroByFamilyMemberId, type Family, type FamilyMember, type Hero } from '@/lib/family'
 import { getTasksWithCompletionStatus, createTask, completeTask, deleteTask, type TaskWithCompletions, type TaskFrequency } from '@/lib/tasks'
 import { getHeroStreakInfo, getStreakEmoji, getStreakDisplayText, calculateXpWithStreakBonus, type StreakInfo } from '@/lib/streaks'
+import { type LevelUpResult } from '@/lib/levels'
+import { type BadgeDefinition } from '@/lib/badges'
 
 export default function TasksPage() {
   const router = useRouter()
@@ -18,7 +20,13 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [completingTaskId, setCompletingTaskId] = useState<string | null>(null)
-  const [lastCompletion, setLastCompletion] = useState<{ xpEarned: number; streakBonus: number; newStreak: number } | null>(null)
+  const [lastCompletion, setLastCompletion] = useState<{ 
+    xpEarned: number
+    streakBonus: number
+    newStreak: number
+    levelUp?: LevelUpResult | null
+    newBadges?: BadgeDefinition[]
+  } | null>(null)
 
   // Create task form state
   const [newTaskTitle, setNewTaskTitle] = useState('')
@@ -147,15 +155,18 @@ export default function TasksPage() {
           streakStatus: 'active',
         } : prev)
         
-        // Show completion feedback
+        // Show completion feedback with level-up and badges
         setLastCompletion({
           xpEarned: result.xpEarned,
           streakBonus: result.streakBonus,
           newStreak: result.newStreak,
+          levelUp: result.levelUp,
+          newBadges: result.newBadges,
         })
         
-        // Auto-hide after 3 seconds
-        setTimeout(() => setLastCompletion(null), 3000)
+        // Auto-hide after 5 seconds (longer for level-up/badges)
+        const hideDelay = (result.levelUp?.leveledUp || result.newBadges.length > 0) ? 5000 : 3000
+        setTimeout(() => setLastCompletion(null), hideDelay)
       }
     } catch (error) {
       console.error('Error completing task:', error)
@@ -235,7 +246,7 @@ export default function TasksPage() {
         {/* XP Earned Toast */}
         {lastCompletion && (
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-            <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-center">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-center min-w-[200px]">
               <div className="text-lg">+{lastCompletion.xpEarned} XP!</div>
               {lastCompletion.streakBonus > 0 && (
                 <div className="text-sm opacity-90">
@@ -245,6 +256,32 @@ export default function TasksPage() {
               <div className="text-sm mt-1">
                 🔥 {lastCompletion.newStreak} day streak!
               </div>
+              
+              {/* Level Up Notification */}
+              {lastCompletion.levelUp?.leveledUp && (
+                <div className="mt-2 pt-2 border-t border-white/30">
+                  <div className="text-yellow-300 text-lg">
+                    🎉 LEVEL UP!
+                  </div>
+                  <div className="text-sm">
+                    Level {lastCompletion.levelUp.newLevel}
+                  </div>
+                </div>
+              )}
+              
+              {/* New Badges Notification */}
+              {lastCompletion.newBadges && lastCompletion.newBadges.length > 0 && (
+                <div className="mt-2 pt-2 border-t border-white/30">
+                  <div className="text-purple-200 text-sm mb-1">New Badge{lastCompletion.newBadges.length > 1 ? 's' : ''}!</div>
+                  <div className="flex justify-center gap-2">
+                    {lastCompletion.newBadges.map(badge => (
+                      <div key={badge.id} className="text-2xl" title={badge.name}>
+                        {badge.emoji}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -568,10 +605,10 @@ export default function TasksPage() {
             <span className="text-xl">🗺️</span>
             <span className="text-xs">Quests</span>
           </Link>
-          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-            <span className="text-xl">👨‍👩‍👧‍👦</span>
-            <span className="text-xs">Family</span>
-          </button>
+          <Link href="/dashboard/badges" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+            <span className="text-xl">🏅</span>
+            <span className="text-xs">Badges</span>
+          </Link>
         </div>
       </nav>
     </div>

@@ -1,5 +1,7 @@
 import { supabase } from './supabase'
 import { updateHeroStreak, calculateXpWithStreakBonus } from './streaks'
+import { checkLevelUp, type LevelUpResult } from './levels'
+import { checkAndAwardBadges, type BadgeDefinition } from './badges'
 
 export type Quest = {
   id: string
@@ -189,7 +191,7 @@ export async function leaveQuest(
 /**
  * Complete participation in a quest
  * Awards XP immediately (trust-based)
- * Includes streak bonus calculation
+ * Includes streak bonus calculation, level-up check, and badge awards
  */
 export async function completeQuestParticipation(params: {
   questId: string
@@ -202,6 +204,8 @@ export async function completeQuestParticipation(params: {
   xpEarned: number
   streakBonus: number
   newStreak: number
+  levelUp: LevelUpResult | null
+  newBadges: BadgeDefinition[]
 } | null> {
   const { questId, heroId, xpReward } = params
 
@@ -296,6 +300,12 @@ export async function completeQuestParticipation(params: {
     questCompleted = true
   }
 
+  // 8. Check for level up
+  const levelUp = checkLevelUp(hero.total_xp || 0, hero.total_xp + xpWithBonus)
+
+  // 9. Check for new badges
+  const newBadges = await checkAndAwardBadges(heroId)
+
   return { 
     participant, 
     newTotalXp, 
@@ -303,6 +313,8 @@ export async function completeQuestParticipation(params: {
     xpEarned: xpWithBonus,
     streakBonus,
     newStreak: streakResult?.newStreak || hero.current_streak,
+    levelUp,
+    newBadges,
   }
 }
 

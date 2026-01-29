@@ -1,5 +1,7 @@
 import { supabase } from './supabase'
 import { updateHeroStreak, calculateXpWithStreakBonus } from './streaks'
+import { checkLevelUp, type LevelUpResult } from './levels'
+import { checkAndAwardBadges, type BadgeDefinition } from './badges'
 
 export type TaskFrequency = 'once' | 'daily' | 'weekly' | 'custom'
 
@@ -138,7 +140,7 @@ export async function createTask(params: {
 /**
  * Complete a task and award XP
  * Trust-based: XP is granted immediately upon completion
- * Includes streak bonus calculation
+ * Includes streak bonus calculation, level-up check, and badge awards
  */
 export async function completeTask(params: {
   taskId: string
@@ -153,6 +155,8 @@ export async function completeTask(params: {
   newStreak: number
   isNewRecord: boolean
   milestoneReached: number | null
+  levelUp: LevelUpResult | null
+  newBadges: BadgeDefinition[]
 } | null> {
   const { taskId, heroId, xpReward, notes } = params
 
@@ -220,6 +224,12 @@ export async function completeTask(params: {
         : 'Completed task',
     })
 
+  // 7. Check for level up
+  const levelUp = checkLevelUp(hero.total_xp || 0, newTotalXp)
+
+  // 8. Check for new badges
+  const newBadges = await checkAndAwardBadges(heroId)
+
   return { 
     completion, 
     newTotalXp,
@@ -228,6 +238,8 @@ export async function completeTask(params: {
     newStreak: streakResult?.newStreak || hero.current_streak,
     isNewRecord: streakResult?.isNewRecord || false,
     milestoneReached: streakResult?.milestoneReached || null,
+    levelUp,
+    newBadges,
   }
 }
 
