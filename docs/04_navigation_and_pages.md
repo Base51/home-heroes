@@ -1,5 +1,41 @@
 # Navigation and Pages
 
+## Route Groups
+The app uses Next.js route groups to organize pages:
+
+```
+app/
+├── (marketing)/           # Public marketing pages
+│   ├── layout.tsx         # Marketing header/footer
+│   ├── page.tsx           # Landing page (/)
+│   ├── features/          # /features
+│   └── pricing/           # /pricing
+│
+├── login/                 # /login
+├── signup/                # /signup
+├── onboarding/            # /onboarding (8-step flow)
+├── settings/              # /settings
+│
+└── dashboard/             # Authenticated app
+    ├── page.tsx           # /dashboard (Today)
+    ├── tasks/             # /dashboard/tasks
+    ├── quests/            # /dashboard/quests
+    ├── family/            # /dashboard/family
+    ├── badges/            # /dashboard/badges
+    └── profile/           # /dashboard/profile
+```
+
+---
+
+## Marketing Pages
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Landing | Hero, features, how it works, CTA |
+| `/features` | Features | Detailed feature breakdown by category |
+| `/pricing` | Pricing | Free + paid plans, FAQ |
+
+---
+
 ## Main Pages
 - Home HQ Dashboard (Today)
 - Tasks Page
