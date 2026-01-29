@@ -2,8 +2,8 @@ import { supabase } from './supabase'
 import { getLevelFromXP } from './levels'
 
 /**
- * Badge System - Extensible achievement system
- * Badges are awarded automatically when requirements are met
+ * Badge System - Database-driven achievement system
+ * Badges are stored in the database and awarded automatically when requirements are met
  */
 
 export interface BadgeDefinition {
@@ -23,6 +23,22 @@ export interface BadgeRequirement {
 
 export interface EarnedBadge extends BadgeDefinition {
   earned_at: string
+}
+
+// Database badge type
+interface DBBadge {
+  id: string
+  name: string
+  description: string
+  icon_url: string
+  unlock_criteria: {
+    type: string
+    count?: number
+    amount?: number
+    level?: number
+  }
+  is_active: boolean
+  display_order: number
 }
 
 // All available badges - extensible list
@@ -336,54 +352,158 @@ function isRequirementMet(requirement: BadgeRequirement, stats: HeroStats): bool
 export async function getHeroBadges(heroId: string): Promise<EarnedBadge[]> {
   const { data: heroBadges, error } = await supabase
     .from('hero_badges')
-    .select('badge_id, unlocked_at')
+    .select(`
+      unlocked_at,
+      badge:badges(*)
+    `)
     .eq('hero_id', heroId)
   
-  if (error || !heroBadges) return []
+  if (error || !heroBadges) {
+    console.error('Error fetching hero badges:', error)
+    return []
+  }
   
-  return heroBadges.map(hb => {
-    const badge = getBadgeById(hb.badge_id)
-    if (!badge) return null
-    return { ...badge, earned_at: hb.unlocked_at }
-  }).filter((b): b is EarnedBadge => b !== null)
+  return heroBadges
+    .filter((hb: any) => hb.badge)
+    .map((hb: any) => {
+      const badgeDef = convertDBBadge(hb.badge as DBBadge)
+      return { ...badgeDef, earned_at: hb.unlocked_at }
+    })
 }
 
 /**
- * Check and award any newly earned badges
+ * Check and award any newly earned badges using database badges
  * Returns array of newly awarded badges
  */
 export async function checkAndAwardBadges(heroId: string): Promise<BadgeDefinition[]> {
-  const stats = await getHeroStats(heroId)
-  
-  // Get already earned badges
-  const { data: earnedBadges } = await supabase
-    .from('hero_badges')
-    .select('badge_id')
-    .eq('hero_id', heroId)
-  
-  const earnedIds = new Set((earnedBadges || []).map(b => b.badge_id))
-  
-  // Find newly earned badges
-  const newBadges: BadgeDefinition[] = []
-  
-  for (const badge of BADGE_DEFINITIONS) {
-    if (earnedIds.has(badge.id)) continue
+  try {
+    const stats = await getHeroStats(heroId)
     
-    if (isRequirementMet(badge.requirement, stats)) {
-      // Award the badge
-      const { error } = await supabase.from('hero_badges').insert({
-        hero_id: heroId,
-        badge_id: badge.id,
-        unlocked_at: new Date().toISOString(),
-      })
+    // Get all active badges from database
+    const { data: dbBadges, error: badgesError } = await supabase
+      .from('badges')
+      .select('*')
+      .eq('is_active', true)
+    
+    if (badgesError || !dbBadges) {
+      console.error('Error fetching badges:', badgesError)
+      return []
+    }
+    
+    // Get already earned badges
+    const { data: earnedBadges } = await supabase
+      .from('hero_badges')
+      .select('badge_id')
+      .eq('hero_id', heroId)
+    
+    const earnedIds = new Set((earnedBadges || []).map(b => b.badge_id))
+    
+    // Find newly earned badges
+    const newBadges: BadgeDefinition[] = []
+    
+    for (const dbBadge of dbBadges as DBBadge[]) {
+      if (earnedIds.has(dbBadge.id)) continue
       
-      if (!error) {
-        newBadges.push(badge)
+      const criteria = dbBadge.unlock_criteria
+      let meetsRequirement = false
+      
+      // Check if requirement is met based on criteria type
+      switch (criteria.type) {
+        case 'tasks_completed':
+          meetsRequirement = stats.totalTasks >= (criteria.count || 0)
+          break
+        case 'quests_completed':
+          meetsRequirement = stats.totalQuests >= (criteria.count || 0)
+          break
+        case 'streak_days':
+          meetsRequirement = stats.longestStreak >= (criteria.count || 0)
+          break
+        case 'xp_earned':
+          meetsRequirement = stats.totalXP >= (criteria.amount || 0)
+          break
+        case 'level_reached':
+          meetsRequirement = stats.level >= (criteria.level || 0)
+          break
+      }
+      
+      if (meetsRequirement) {
+        // Award the badge
+        const { error } = await supabase.from('hero_badges').insert({
+          hero_id: heroId,
+          badge_id: dbBadge.id,
+        })
+        
+        if (!error) {
+          newBadges.push(convertDBBadge(dbBadge))
+        } else {
+          console.error('Error awarding badge:', error)
+        }
       }
     }
+    
+    return newBadges
+  } catch (error) {
+    console.error('Error checking badges:', error)
+    return []
+  }
+}
+
+/**
+ * Convert database badge to BadgeDefinition format
+ */
+function convertDBBadge(dbBadge: DBBadge): BadgeDefinition {
+  const criteria = dbBadge.unlock_criteria
+  let category: BadgeDefinition['category'] = 'special'
+  let requirementType: BadgeRequirement['type'] = 'first_action'
+  let requirementValue = 1
+  
+  switch (criteria.type) {
+    case 'tasks_completed':
+      category = 'tasks'
+      requirementType = 'task_count'
+      requirementValue = criteria.count || 1
+      break
+    case 'quests_completed':
+      category = 'quests'
+      requirementType = 'quest_count'
+      requirementValue = criteria.count || 1
+      break
+    case 'streak_days':
+      category = 'streaks'
+      requirementType = 'streak_days'
+      requirementValue = criteria.count || 1
+      break
+    case 'xp_earned':
+      category = 'xp'
+      requirementType = 'total_xp'
+      requirementValue = criteria.amount || 1
+      break
+    case 'level_reached':
+      category = 'xp'
+      requirementType = 'level'
+      requirementValue = criteria.level || 1
+      break
   }
   
-  return newBadges
+  // Determine rarity based on requirement value
+  let rarity: BadgeDefinition['rarity'] = 'common'
+  if (requirementValue >= 100 || (requirementType === 'level' && requirementValue >= 10)) {
+    rarity = 'legendary'
+  } else if (requirementValue >= 50 || (requirementType === 'level' && requirementValue >= 5)) {
+    rarity = 'epic'
+  } else if (requirementValue >= 10) {
+    rarity = 'rare'
+  }
+  
+  return {
+    id: dbBadge.id,
+    name: dbBadge.name,
+    description: dbBadge.description,
+    emoji: dbBadge.icon_url,
+    category,
+    rarity,
+    requirement: { type: requirementType, value: requirementValue },
+  }
 }
 
 /**
