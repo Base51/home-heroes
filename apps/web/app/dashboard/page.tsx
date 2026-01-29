@@ -84,12 +84,54 @@ export default function DashboardPage() {
 
   if (loading || checkingFamily) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            {checkingFamily ? 'Checking your Hero HQ...' : 'Loading...'}
-          </p>
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 pb-20">
+        {/* Header Skeleton */}
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="w-24 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+              <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+            </div>
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 pt-6">
+          {/* Emblem Skeleton */}
+          <div className="flex justify-center mb-6">
+            <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+          </div>
+          {/* Progress Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700 mb-6 animate-pulse">
+            <div className="flex justify-between mb-2">
+              <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="w-16 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+            </div>
+            <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full" />
+          </div>
+          {/* Heroes Skeleton */}
+          <div className="mb-6 animate-pulse">
+            <div className="w-28 h-5 bg-gray-200 dark:bg-gray-700 rounded mb-3" />
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex-shrink-0 text-center">
+                  <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 mb-2" />
+                  <div className="w-14 h-3 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Action Grid Skeleton */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-200 dark:border-gray-700 animate-pulse">
+                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl mx-auto mb-3" />
+                <div className="w-16 h-4 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     )

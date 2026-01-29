@@ -163,10 +163,50 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 pb-24">
+        {/* Header Skeleton */}
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="w-28 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            </div>
+            <div className="w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 pt-6">
+          {/* Hero Card Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6 animate-pulse">
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-28 h-28 rounded-full bg-gray-200 dark:bg-gray-700 mb-4" />
+              <div className="w-32 h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
+              <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+            </div>
+            <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full mb-2" />
+            <div className="flex justify-between">
+              <div className="w-20 h-3 bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded" />
+            </div>
+          </div>
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 animate-pulse">
+                <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-3" />
+                <div className="w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded mx-auto mb-2" />
+                <div className="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
+          {/* Badges Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 animate-pulse">
+            <div className="w-24 h-5 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
+            <div className="flex gap-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-full" />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )

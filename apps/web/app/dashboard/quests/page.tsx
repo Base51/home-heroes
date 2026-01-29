@@ -189,10 +189,61 @@ export default function QuestsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading quests...</p>
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 pb-24">
+        {/* Header Skeleton */}
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-24 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+              <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+            </div>
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 pt-6">
+          {/* Hero Card Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700 mb-6 animate-pulse">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700" />
+              <div className="flex-1 space-y-2">
+                <div className="w-24 h-5 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="w-16 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+              </div>
+              <div className="text-right space-y-2">
+                <div className="w-16 h-7 bg-gray-200 dark:bg-gray-700 rounded ml-auto" />
+                <div className="w-12 h-3 bg-gray-200 dark:bg-gray-700 rounded ml-auto" />
+              </div>
+            </div>
+          </div>
+          {/* Stats Skeleton */}
+          <div className="flex gap-4 mb-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 animate-pulse">
+                <div className="w-10 h-8 bg-gray-200 dark:bg-gray-700 rounded mx-auto mb-2" />
+                <div className="w-12 h-4 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
+          {/* Quest Cards Skeleton */}
+          <div className="w-32 h-6 bg-gray-200 dark:bg-gray-700 rounded mb-4 animate-pulse" />
+          <div className="space-y-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-md border border-gray-200 dark:border-gray-700 animate-pulse">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded" />
+                  <div className="flex-1 space-y-2">
+                    <div className="w-3/4 h-5 bg-gray-200 dark:bg-gray-700 rounded" />
+                    <div className="w-1/2 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+                  </div>
+                </div>
+                <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full mb-4" />
+                <div className="w-full h-12 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -218,7 +269,7 @@ export default function QuestsPage() {
             {member?.role === 'parent' && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors text-sm"
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors text-sm btn-press shadow-md hover:shadow-lg"
               >
                 + New Quest
               </button>
@@ -233,9 +284,9 @@ export default function QuestsPage() {
       <main className="max-w-2xl mx-auto px-4 pt-6">
         {/* Hero XP Display */}
         {hero && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700 mb-6 animate-fade-in">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-3xl animate-bounce-slow">
                 {getHeroEmoji(hero.hero_type)}
               </div>
               <div className="flex-1">
@@ -252,15 +303,15 @@ export default function QuestsPage() {
 
         {/* Quest Stats */}
         <div className="flex gap-4 mb-6">
-          <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700">
+          <div className="stagger-item flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 card-interactive" style={{ animationDelay: '0.05s' }}>
             <div className="text-3xl font-bold text-purple-500">{activeQuests.length}</div>
             <div className="text-sm text-gray-500 dark:text-gray-400">Active</div>
           </div>
-          <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700">
+          <div className="stagger-item flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 card-interactive" style={{ animationDelay: '0.1s' }}>
             <div className="text-3xl font-bold text-green-500">{completedQuests.length}</div>
             <div className="text-sm text-gray-500 dark:text-gray-400">Completed</div>
           </div>
-          <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700">
+          <div className="stagger-item flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 card-interactive" style={{ animationDelay: '0.15s' }}>
             <div className="text-3xl font-bold text-blue-500">
               {quests.filter(q => q.current_hero_participant).length}
             </div>

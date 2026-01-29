@@ -206,10 +206,41 @@ export default function TasksPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading tasks...</p>
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 pb-24">
+        {/* Header skeleton */}
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div className="w-20 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            </div>
+            <div className="w-24 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 pt-6 space-y-4">
+          {/* Hero card skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+          {/* Task skeletons */}
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-5 w-40 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                  <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                </div>
+              </div>
+              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+            </div>
+          ))}
         </div>
       </div>
     )
@@ -375,46 +406,47 @@ export default function TasksPage() {
         {/* Pending Tasks */}
         {pendingTasks.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white px-2 mb-4">
-              📋 Available Tasks
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white px-2 mb-4 flex items-center gap-2">
+              <span className="animate-bounce-slow">📋</span> Available Tasks
               {streakInfo && streakInfo.bonusMultiplier > 0 && (
-                <span className="ml-2 text-sm font-normal text-orange-500">
-                  (+{Math.round(streakInfo.bonusMultiplier * 100)}% streak bonus)
+                <span className="text-sm font-normal text-orange-500 bg-orange-50 dark:bg-orange-900/20 px-2 py-0.5 rounded-full">
+                  🔥 +{Math.round(streakInfo.bonusMultiplier * 100)}% bonus
                 </span>
               )}
             </h2>
             <div className="space-y-3">
-              {pendingTasks.map((task) => (
+              {pendingTasks.map((task, index) => (
                 <div
                   key={task.id}
-                  className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700"
+                  className="stagger-item bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700 card-interactive"
+                  style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{getFrequencyIcon(task.frequency)}</span>
+                        <span className="text-xl">{getFrequencyIcon(task.frequency)}</span>
                         <span className="font-semibold text-gray-900 dark:text-white">
                           {task.title}
                         </span>
                       </div>
                       {task.description && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 ml-7">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 ml-8">
                           {task.description}
                         </p>
                       )}
-                      <div className="flex items-center gap-3 mt-2 ml-7">
-                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                      <div className="flex items-center gap-3 mt-2 ml-8">
+                        <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
                           {getFrequencyLabel(task.frequency)}
                         </span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <div className="text-right">
-                        <span className="text-sm font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg">
+                        <span className="text-sm font-bold text-amber-600 dark:text-amber-400 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 px-3 py-1.5 rounded-xl shadow-sm border border-amber-100 dark:border-amber-800">
                           +{streakInfo ? calculateXpWithStreakBonus(task.xp_reward, streakInfo.currentStreak) : task.xp_reward} XP
                         </span>
                         {streakInfo && streakInfo.bonusMultiplier > 0 && (
-                          <div className="text-xs text-orange-500 mt-1">
+                          <div className="text-xs text-orange-500 mt-1 font-medium">
                             🔥 +{Math.round(task.xp_reward * streakInfo.bonusMultiplier)} bonus
                           </div>
                         )}
@@ -422,9 +454,9 @@ export default function TasksPage() {
                       {member?.role === 'parent' && (
                         <button
                           onClick={() => handleDeleteTask(task.id)}
-                          className="text-xs text-red-500 hover:text-red-600"
+                          className="text-xs text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
                         >
-                          Delete
+                          🗑️ Delete
                         </button>
                       )}
                     </div>
@@ -432,15 +464,18 @@ export default function TasksPage() {
                   <button
                     onClick={() => handleCompleteTask(task)}
                     disabled={completingTaskId === task.id}
-                    className="w-full bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed btn-press"
                   >
                     {completingTaskId === task.id ? (
                       <span className="flex items-center justify-center gap-2">
-                        <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                         Completing...
                       </span>
                     ) : (
-                      'Complete ✓'
+                      <span className="flex items-center justify-center gap-2">
+                        <span>Complete</span>
+                        <span className="text-lg">✓</span>
+                      </span>
                     )}
                   </button>
                 </div>

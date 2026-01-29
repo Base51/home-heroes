@@ -85,10 +85,54 @@ export default function BadgesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-yellow-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading badges...</p>
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-orange-50 dark:from-gray-900 dark:to-gray-800 pb-24">
+        {/* Header Skeleton */}
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            </div>
+            <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 pt-6">
+          {/* Hero Card Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-200 dark:border-gray-700 mb-6 animate-pulse">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700" />
+              <div className="flex-1 space-y-2">
+                <div className="w-32 h-5 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+              </div>
+            </div>
+            <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full" />
+          </div>
+          {/* Stats Skeleton */}
+          <div className="flex gap-4 mb-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 animate-pulse">
+                <div className="w-10 h-8 bg-gray-200 dark:bg-gray-700 rounded mx-auto mb-2" />
+                <div className="w-12 h-4 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
+          {/* Category Tabs Skeleton */}
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="w-20 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse flex-shrink-0" />
+            ))}
+          </div>
+          {/* Badge Grid Skeleton */}
+          <div className="grid grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-4 text-center border border-gray-200 dark:border-gray-700 animate-pulse">
+                <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-3" />
+                <div className="w-16 h-4 bg-gray-200 dark:bg-gray-700 rounded mx-auto mb-2" />
+                <div className="w-12 h-3 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     )
