@@ -242,14 +242,14 @@ export default function DashboardPage() {
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
         <div className="max-w-2xl mx-auto flex">
-          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-blue-600 dark:text-blue-400 font-semibold border-t-2 border-blue-600">
+          <Link href="/dashboard" className="flex-1 py-3 flex flex-col items-center gap-1 text-blue-600 dark:text-blue-400 font-semibold border-t-2 border-blue-600">
             <span className="text-xl">⭐</span>
             <span className="text-xs">Today</span>
-          </button>
-          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+          </Link>
+          <Link href="/dashboard/tasks" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">✓</span>
             <span className="text-xs">Tasks</span>
-          </button>
+          </Link>
           <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">🗺️</span>
             <span className="text-xs">Quests</span>
