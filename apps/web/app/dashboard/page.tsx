@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/auth'
 import { getUserFamily, getFamilyMembersWithHeroes, type Family } from '@/lib/family'
+import { getStreakEmoji } from '@/lib/streaks'
 import type { User } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
@@ -174,24 +175,59 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* D) Family Avatars (Social Proof) */}
+        {/* D) Family Avatars with Streaks */}
         <div className="flex justify-center mb-6">
           <div className="flex -space-x-3">
             {familyMembers.slice(0, 6).map((member: any, index: number) => (
               <div
                 key={member.id}
-                className="w-12 h-12 rounded-full border-3 border-white dark:border-gray-800 bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-2xl shadow-md"
+                className="relative"
                 style={{ zIndex: familyMembers.length - index }}
               >
-                {member.heroes[0]?.hero_type === 'super_mommy' && '🦸‍♀️'}
-                {member.heroes[0]?.hero_type === 'super_daddy' && '🦸‍♂️'}
-                {member.heroes[0]?.hero_type === 'kid_male' && '🧒'}
-                {member.heroes[0]?.hero_type === 'kid_female' && '👧'}
-                {!member.heroes[0] && '👤'}
+                <div
+                  className="w-12 h-12 rounded-full border-3 border-white dark:border-gray-800 bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-2xl shadow-md"
+                >
+                  {member.heroes[0]?.hero_type === 'super_mommy' && '🦸‍♀️'}
+                  {member.heroes[0]?.hero_type === 'super_daddy' && '🦸‍♂️'}
+                  {member.heroes[0]?.hero_type === 'kid_male' && '🧒'}
+                  {member.heroes[0]?.hero_type === 'kid_female' && '👧'}
+                  {!member.heroes[0] && '👤'}
+                </div>
+                {/* Streak indicator */}
+                {member.heroes[0]?.current_streak > 0 && (
+                  <div className="absolute -bottom-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-white dark:border-gray-800">
+                    {member.heroes[0].current_streak}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
+
+        {/* Family Streak Summary */}
+        {familyMembers.length > 0 && (
+          <div className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-2xl p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">
+                  {getStreakEmoji(Math.max(...familyMembers.map((m: any) => m.heroes[0]?.current_streak || 0)))}
+                </span>
+                <div>
+                  <div className="font-bold text-gray-900 dark:text-white">Family Streaks</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {familyMembers.filter((m: any) => m.heroes[0]?.current_streak > 0).length} / {familyMembers.length} heroes on a streak
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                  {Math.max(...familyMembers.map((m: any) => m.heroes[0]?.current_streak || 0))}
+                </div>
+                <div className="text-xs text-gray-500">Best streak</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* E) Today's Tasks */}
         <div className="space-y-3">
@@ -250,10 +286,10 @@ export default function DashboardPage() {
             <span className="text-xl">✓</span>
             <span className="text-xs">Tasks</span>
           </Link>
-          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+          <Link href="/dashboard/quests" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">🗺️</span>
             <span className="text-xs">Quests</span>
-          </button>
+          </Link>
           <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">👨‍👩‍👧‍👦</span>
             <span className="text-xs">Family</span>

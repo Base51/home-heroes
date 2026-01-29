@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { updateHeroStreak, calculateXpWithStreakBonus } from './streaks'
 
 export type TaskFrequency = 'once' | 'daily' | 'weekly' | 'custom'
 
@@ -137,22 +138,47 @@ export async function createTask(params: {
 /**
  * Complete a task and award XP
  * Trust-based: XP is granted immediately upon completion
+ * Includes streak bonus calculation
  */
 export async function completeTask(params: {
   taskId: string
   heroId: string
   xpReward: number
   notes?: string
-}): Promise<{ completion: Completion; newTotalXp: number } | null> {
+}): Promise<{ 
+  completion: Completion
+  newTotalXp: number
+  xpEarned: number
+  streakBonus: number
+  newStreak: number
+  isNewRecord: boolean
+  milestoneReached: number | null
+} | null> {
   const { taskId, heroId, xpReward, notes } = params
 
-  // 1. Create completion record
+  // 1. Get current hero streak for bonus calculation
+  const { data: hero, error: heroError } = await supabase
+    .from('heroes')
+    .select('total_xp, current_streak')
+    .eq('id', heroId)
+    .single()
+
+  if (heroError) {
+    console.error('Error fetching hero:', heroError)
+    return null
+  }
+
+  // 2. Calculate XP with streak bonus
+  const xpWithBonus = calculateXpWithStreakBonus(xpReward, hero.current_streak)
+  const streakBonus = xpWithBonus - xpReward
+
+  // 3. Create completion record with actual XP earned
   const { data: completion, error: completionError } = await supabase
     .from('completions')
     .insert({
       task_id: taskId,
       hero_id: heroId,
-      xp_earned: xpReward,
+      xp_earned: xpWithBonus,
       notes: notes || null,
     })
     .select()
@@ -163,25 +189,16 @@ export async function completeTask(params: {
     return null
   }
 
-  // 2. Update hero's total XP
-  const { data: hero, error: heroError } = await supabase
-    .from('heroes')
-    .select('total_xp')
-    .eq('id', heroId)
-    .single()
+  // 4. Update streak (this also updates last_activity_date)
+  const streakResult = await updateHeroStreak(heroId)
 
-  if (heroError) {
-    console.error('Error fetching hero:', heroError)
-    return null
-  }
-
-  const newTotalXp = (hero.total_xp || 0) + xpReward
+  // 5. Update hero's total XP
+  const newTotalXp = (hero.total_xp || 0) + xpWithBonus
 
   const { error: updateError } = await supabase
     .from('heroes')
     .update({ 
       total_xp: newTotalXp,
-      last_activity_date: new Date().toISOString().split('T')[0]
     })
     .eq('id', heroId)
 
@@ -190,18 +207,28 @@ export async function completeTask(params: {
     return null
   }
 
-  // 3. Log the XP gain
+  // 6. Log the XP gain
   await supabase
     .from('xp_logs')
     .insert({
       hero_id: heroId,
-      xp_amount: xpReward,
+      xp_amount: xpWithBonus,
       source_type: 'task',
       source_id: taskId,
-      reason: `Completed task`,
+      reason: streakBonus > 0 
+        ? `Completed task (+${streakBonus} streak bonus)` 
+        : 'Completed task',
     })
 
-  return { completion, newTotalXp }
+  return { 
+    completion, 
+    newTotalXp,
+    xpEarned: xpWithBonus,
+    streakBonus,
+    newStreak: streakResult?.newStreak || hero.current_streak,
+    isNewRecord: streakResult?.isNewRecord || false,
+    milestoneReached: streakResult?.milestoneReached || null,
+  }
 }
 
 /**

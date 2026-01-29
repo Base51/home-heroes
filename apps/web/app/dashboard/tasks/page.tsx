@@ -6,16 +6,19 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { getUserFamily, getCurrentFamilyMember, getHeroByFamilyMemberId, type Family, type FamilyMember, type Hero } from '@/lib/family'
 import { getTasksWithCompletionStatus, createTask, completeTask, deleteTask, type TaskWithCompletions, type TaskFrequency } from '@/lib/tasks'
+import { getHeroStreakInfo, getStreakEmoji, getStreakDisplayText, calculateXpWithStreakBonus, type StreakInfo } from '@/lib/streaks'
 
 export default function TasksPage() {
   const router = useRouter()
   const [family, setFamily] = useState<Family | null>(null)
   const [member, setMember] = useState<FamilyMember | null>(null)
   const [hero, setHero] = useState<Hero | null>(null)
+  const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null)
   const [tasks, setTasks] = useState<TaskWithCompletions[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [completingTaskId, setCompletingTaskId] = useState<string | null>(null)
+  const [lastCompletion, setLastCompletion] = useState<{ xpEarned: number; streakBonus: number; newStreak: number } | null>(null)
 
   // Create task form state
   const [newTaskTitle, setNewTaskTitle] = useState('')
@@ -57,6 +60,10 @@ export default function TasksPage() {
       const memberHero = await getHeroByFamilyMemberId(currentMember.id)
       if (memberHero) {
         setHero(memberHero)
+        
+        // Load streak info
+        const streak = await getHeroStreakInfo(memberHero.id)
+        setStreakInfo(streak)
         
         // Load tasks with completion status
         const tasksData = await getTasksWithCompletionStatus(userFamily.id, memberHero.id)
@@ -125,8 +132,30 @@ export default function TasksPage() {
             : t
         ))
         
-        // Update hero XP locally
-        setHero(prev => prev ? { ...prev, total_xp: result.newTotalXp } : prev)
+        // Update hero XP and streak locally
+        setHero(prev => prev ? { 
+          ...prev, 
+          total_xp: result.newTotalXp,
+          current_streak: result.newStreak,
+        } : prev)
+        
+        // Update streak info
+        setStreakInfo(prev => prev ? {
+          ...prev,
+          currentStreak: result.newStreak,
+          isActiveToday: true,
+          streakStatus: 'active',
+        } : prev)
+        
+        // Show completion feedback
+        setLastCompletion({
+          xpEarned: result.xpEarned,
+          streakBonus: result.streakBonus,
+          newStreak: result.newStreak,
+        })
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => setLastCompletion(null), 3000)
       }
     } catch (error) {
       console.error('Error completing task:', error)
@@ -203,7 +232,24 @@ export default function TasksPage() {
       </div>
 
       <main className="max-w-2xl mx-auto px-4 pt-6">
-        {/* Hero XP Display */}
+        {/* XP Earned Toast */}
+        {lastCompletion && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-bounce">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-center">
+              <div className="text-lg">+{lastCompletion.xpEarned} XP!</div>
+              {lastCompletion.streakBonus > 0 && (
+                <div className="text-sm opacity-90">
+                  (includes +{lastCompletion.streakBonus} streak bonus)
+                </div>
+              )}
+              <div className="text-sm mt-1">
+                🔥 {lastCompletion.newStreak} day streak!
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Hero XP Display with Streak */}
         {hero && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700 mb-6">
             <div className="flex items-center gap-4">
@@ -222,6 +268,47 @@ export default function TasksPage() {
                 <div className="text-xs text-gray-500 dark:text-gray-400">Total XP</div>
               </div>
             </div>
+            
+            {/* Streak Display */}
+            {streakInfo && (
+              <div className={`mt-4 p-3 rounded-xl ${
+                streakInfo.streakStatus === 'active' 
+                  ? 'bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30' 
+                  : streakInfo.streakStatus === 'at_risk'
+                  ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                  : 'bg-gray-100 dark:bg-gray-700'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{getStreakEmoji(streakInfo.currentStreak)}</span>
+                    <div>
+                      <div className="font-bold text-gray-900 dark:text-white">
+                        {getStreakDisplayText(streakInfo.currentStreak)}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {streakInfo.streakStatus === 'active' && '✅ Active today!'}
+                        {streakInfo.streakStatus === 'at_risk' && '⚠️ Complete a task to keep it!'}
+                        {streakInfo.streakStatus === 'broken' && 'Start a new streak!'}
+                        {streakInfo.streakStatus === 'new' && 'Complete a task to start!'}
+                      </div>
+                    </div>
+                  </div>
+                  {streakInfo.bonusMultiplier > 0 && (
+                    <div className="text-right">
+                      <div className="text-sm font-bold text-orange-600 dark:text-orange-400">
+                        +{Math.round(streakInfo.bonusMultiplier * 100)}%
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">XP Bonus</div>
+                    </div>
+                  )}
+                </div>
+                {streakInfo.nextMilestone && (
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    🎯 {streakInfo.daysToNextMilestone} days to {streakInfo.nextMilestone}-day milestone!
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -236,8 +323,10 @@ export default function TasksPage() {
             <div className="text-sm text-gray-500 dark:text-gray-400">To Do</div>
           </div>
           <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700">
-            <div className="text-3xl font-bold text-amber-500">{tasks.reduce((sum, t) => sum + (t.completed_today ? t.xp_reward : 0), 0)}</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">XP Earned</div>
+            <div className="text-3xl font-bold text-orange-500">
+              {streakInfo?.currentStreak || 0}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Day Streak</div>
           </div>
         </div>
 
@@ -246,6 +335,11 @@ export default function TasksPage() {
           <div className="mb-8">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white px-2 mb-4">
               📋 Available Tasks
+              {streakInfo && streakInfo.bonusMultiplier > 0 && (
+                <span className="ml-2 text-sm font-normal text-orange-500">
+                  (+{Math.round(streakInfo.bonusMultiplier * 100)}% streak bonus)
+                </span>
+              )}
             </h2>
             <div className="space-y-3">
               {pendingTasks.map((task) => (
@@ -273,9 +367,16 @@ export default function TasksPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <span className="text-sm font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg">
-                        +{task.xp_reward} XP
-                      </span>
+                      <div className="text-right">
+                        <span className="text-sm font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg">
+                          +{streakInfo ? calculateXpWithStreakBonus(task.xp_reward, streakInfo.currentStreak) : task.xp_reward} XP
+                        </span>
+                        {streakInfo && streakInfo.bonusMultiplier > 0 && (
+                          <div className="text-xs text-orange-500 mt-1">
+                            🔥 +{Math.round(task.xp_reward * streakInfo.bonusMultiplier)} bonus
+                          </div>
+                        )}
+                      </div>
                       {member?.role === 'parent' && (
                         <button
                           onClick={() => handleDeleteTask(task.id)}
@@ -463,10 +564,10 @@ export default function TasksPage() {
             <span className="text-xl">✓</span>
             <span className="text-xs">Tasks</span>
           </Link>
-          <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+          <Link href="/dashboard/quests" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">🗺️</span>
             <span className="text-xs">Quests</span>
-          </button>
+          </Link>
           <button className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">👨‍👩‍👧‍👦</span>
             <span className="text-xs">Family</span>
