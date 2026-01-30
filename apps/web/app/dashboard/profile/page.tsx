@@ -556,6 +556,10 @@ export default function ProfilePage() {
             <span className="text-xl">🗺️</span>
             <span className="text-xs">Quests</span>
           </Link>
+          <Link href="/dashboard/family" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+            <span className="text-xl">👨‍👩‍👧‍👦</span>
+            <span className="text-xs">Family</span>
+          </Link>
           <Link href="/dashboard/badges" className="flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <span className="text-xl">🏅</span>
             <span className="text-xs">Badges</span>
