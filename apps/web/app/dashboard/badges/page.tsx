@@ -7,9 +7,9 @@ import { supabase } from '@/lib/supabase'
 import { getUserFamily, getCurrentFamilyMember, getHeroByFamilyMemberId, type Family, type FamilyMember, type Hero } from '@/lib/family'
 import { getLevelInfo, getLevelColor, getLevelEmoji, type LevelInfo } from '@/lib/levels'
 import { 
-  BADGE_DEFINITIONS, 
   getHeroBadges, 
   getNextBadges,
+  getAllBadgesFromDB,
   getRarityGradient,
   getRarityColor,
   type BadgeDefinition,
@@ -23,6 +23,7 @@ export default function BadgesPage() {
   const [hero, setHero] = useState<Hero | null>(null)
   const [levelInfo, setLevelInfo] = useState<LevelInfo | null>(null)
   const [earnedBadges, setEarnedBadges] = useState<EarnedBadge[]>([])
+  const [allBadges, setAllBadges] = useState<BadgeDefinition[]>([])
   const [nextBadges, setNextBadges] = useState<BadgeDefinition[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
@@ -58,7 +59,11 @@ export default function BadgesPage() {
         setHero(memberHero)
         setLevelInfo(getLevelInfo(memberHero.total_xp))
         
-        // Load badges
+        // Load all badges from database
+        const badges = await getAllBadgesFromDB()
+        setAllBadges(badges)
+        
+        // Load earned badges
         const earned = await getHeroBadges(memberHero.id)
         setEarnedBadges(earned)
         
@@ -149,8 +154,8 @@ export default function BadgesPage() {
   ]
 
   const filteredBadges = selectedCategory === 'all' 
-    ? BADGE_DEFINITIONS 
-    : BADGE_DEFINITIONS.filter(b => b.category === selectedCategory)
+    ? allBadges 
+    : allBadges.filter(b => b.category === selectedCategory)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-orange-50 dark:from-gray-900 dark:to-gray-800 pb-24">
@@ -268,13 +273,13 @@ export default function BadgesPage() {
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-md border border-gray-200 dark:border-gray-700">
             <div className="text-3xl font-bold text-gray-400">
-              {BADGE_DEFINITIONS.length - earnedBadges.length}
+              {allBadges.length - earnedBadges.length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Locked</div>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-md border border-gray-200 dark:border-gray-700">
             <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-              {Math.round((earnedBadges.length / BADGE_DEFINITIONS.length) * 100)}%
+              {allBadges.length > 0 ? Math.round((earnedBadges.length / allBadges.length) * 100) : 0}%
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Complete</div>
           </div>

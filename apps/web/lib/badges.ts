@@ -253,6 +253,24 @@ export function getBadgeById(badgeId: string): BadgeDefinition | undefined {
 }
 
 /**
+ * Get all badges from the database
+ */
+export async function getAllBadgesFromDB(): Promise<BadgeDefinition[]> {
+  const { data: dbBadges, error } = await supabase
+    .from('badges')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order', { ascending: true })
+  
+  if (error || !dbBadges) {
+    console.error('Error fetching badges from database:', error)
+    return []
+  }
+  
+  return (dbBadges as DBBadge[]).map(convertDBBadge)
+}
+
+/**
  * Get rarity color classes for styling
  */
 export function getRarityColor(rarity: BadgeDefinition['rarity']): string {
