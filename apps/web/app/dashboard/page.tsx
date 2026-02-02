@@ -11,10 +11,12 @@ import { getLevelInfo } from '@/lib/levels'
 import { getTasksWithCompletionStatus, completeTask, getTaskIcon, type TaskWithCompletions } from '@/lib/tasks'
 import { useHero, getHeroEmoji } from '@/lib/hero-context'
 import { HeroSwitcher } from '@/components/hero-switcher'
+import { PlayModeBanner } from '@/components/play-mode-banner'
 import type { User } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
   const router = useRouter()
+  const { activeHero, isParentView } = useHero()
   const [user, setUser] = useState<User | null>(null)
   const [family, setFamily] = useState<Family | null>(null)
   const [familyMembers, setFamilyMembers] = useState<any[]>([])
@@ -101,14 +103,17 @@ export default function DashboardPage() {
     }
   }
 
+  // Use active hero from context for task completion (supports kid mode)
+  const heroForCompletion = activeHero || currentHero
+
   const handleCompleteTask = async (task: TaskWithCompletions) => {
-    if (!currentHero || task.completed_today || completingTaskId) return
+    if (!heroForCompletion || task.completed_today || completingTaskId) return
     
     setCompletingTaskId(task.id)
     try {
       const result = await completeTask({
         taskId: task.id,
-        heroId: currentHero.id,
+        heroId: heroForCompletion.id,
         xpReward: task.xp_reward,
       })
       
@@ -199,18 +204,30 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 pb-20">
+      {/* Play Mode Banner - shown when kid is playing */}
+      <PlayModeBanner />
+      
       {/* A) Family Identity Row */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      <div className={`border-b px-4 py-3 ${
+        isParentView 
+          ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700' 
+          : 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800'
+      }`}>
         <div className="flex items-center justify-between max-w-2xl mx-auto">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🏠</span>
+            <span className="text-xl">{isParentView ? '🏠' : '🎮'}</span>
             <span className="font-bold text-gray-900 dark:text-white">
-              {family?.name || 'Home Heroes'}
+              {isParentView ? (family?.name || 'Home Heroes') : activeHero?.hero_name}
             </span>
+            {!isParentView && (
+              <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full">
+                Play Mode
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <div className="px-3 py-1 bg-amber-400 rounded-full font-bold text-sm text-gray-900">
-              Lv. {familyLevel}
+              Lv. {isParentView ? familyLevel : (activeHero?.level || 1)}
             </div>
             <HeroSwitcher />
           </div>
@@ -394,23 +411,27 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-6 flex justify-center">
-          <Link
-            href="/settings"
-            className="px-6 py-3 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
-          >
-            ⚙️ Settings
-          </Link>
-        </div>
+        {/* Quick Actions - Only show Settings for parents */}
+        {isParentView && (
+          <div className="mt-6 flex justify-center">
+            <Link
+              href="/settings"
+              className="px-6 py-3 text-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+            >
+              ⚙️ Settings
+            </Link>
+          </div>
+        )}
 
-        {/* Sign Out Button */}
-        <button
-          onClick={handleSignOut}
-          className="w-full mt-3 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-sm"
-        >
-          Sign Out
-        </button>
+        {/* Sign Out Button - Only show for parents */}
+        {isParentView && (
+          <button
+            onClick={handleSignOut}
+            className="w-full mt-3 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-sm"
+          >
+            Sign Out
+          </button>
+        )}
       </main>
 
       {/* Bottom Navigation */}

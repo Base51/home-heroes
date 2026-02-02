@@ -9,9 +9,13 @@ import { getTasksWithCompletionStatus, createTask, completeTask, deleteTask, typ
 import { getHeroStreakInfo, getStreakEmoji, getStreakDisplayText, calculateXpWithStreakBonus, type StreakInfo } from '@/lib/streaks'
 import { type LevelUpResult } from '@/lib/levels'
 import { type BadgeDefinition } from '@/lib/badges'
+import { useHero } from '@/lib/hero-context'
+import { PlayModeBanner } from '@/components/play-mode-banner'
+import { HeroSwitcher } from '@/components/hero-switcher'
 
 export default function TasksPage() {
   const router = useRouter()
+  const { activeHero, isParentView } = useHero()
   const [family, setFamily] = useState<Family | null>(null)
   const [member, setMember] = useState<FamilyMember | null>(null)
   const [hero, setHero] = useState<Hero | null>(null)
@@ -27,6 +31,9 @@ export default function TasksPage() {
     levelUp?: LevelUpResult | null
     newBadges?: BadgeDefinition[]
   } | null>(null)
+
+  // Determine if user can manage tasks (create/delete)
+  const canManageTasks = isParentView && member?.role === 'parent'
 
   // Create task form state
   const [newTaskTitle, setNewTaskTitle] = useState('')
@@ -252,7 +259,15 @@ export default function TasksPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 pb-24">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      {/* Play Mode Banner */}
+      <PlayModeBanner />
+      
+      {/* Header */}
+      <div className={`border-b px-4 py-3 ${
+        isParentView 
+          ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700' 
+          : 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800'
+      }`}>
         <div className="flex items-center justify-between max-w-2xl mx-auto">
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -261,9 +276,14 @@ export default function TasksPage() {
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
               ✓ Tasks
             </h1>
+            {!isParentView && (
+              <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full">
+                View Only
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
-            {member?.role === 'parent' && (
+            {canManageTasks && (
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-sm"
@@ -271,9 +291,7 @@ export default function TasksPage() {
                 + New Task
               </button>
             )}
-            <Link href="/dashboard/profile" className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-lg hover:ring-2 hover:ring-blue-500 transition-all">
-              👤
-            </Link>
+            <HeroSwitcher />
           </div>
         </div>
       </div>
@@ -527,13 +545,18 @@ export default function TasksPage() {
                 ? 'Create your first task to get started!' 
                 : 'Ask a parent to create some tasks for you.'}
             </p>
-            {member?.role === 'parent' && (
+            {canManageTasks && (
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
               >
                 + Create First Task
               </button>
+            )}
+            {!isParentView && (
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Ask a parent to create tasks for you!
+              </p>
             )}
           </div>
         )}

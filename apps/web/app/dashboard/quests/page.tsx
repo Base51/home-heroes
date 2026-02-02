@@ -6,9 +6,13 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { getUserFamily, getCurrentFamilyMember, getHeroByFamilyMemberId, getFamilyMembersWithHeroes, type Family, type FamilyMember, type Hero } from '@/lib/family'
 import { getFamilyQuests, createQuest, joinQuest, leaveQuest, completeQuestParticipation, deleteQuest, type QuestWithParticipants } from '@/lib/quests'
+import { useHero } from '@/lib/hero-context'
+import { PlayModeBanner } from '@/components/play-mode-banner'
+import { HeroSwitcher } from '@/components/hero-switcher'
 
 export default function QuestsPage() {
   const router = useRouter()
+  const { activeHero, isParentView } = useHero()
   const [family, setFamily] = useState<Family | null>(null)
   const [member, setMember] = useState<FamilyMember | null>(null)
   const [hero, setHero] = useState<Hero | null>(null)
@@ -17,6 +21,9 @@ export default function QuestsPage() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  // Determine if user can manage quests (create/delete)
+  const canManageQuests = isParentView && member?.role === 'parent'
 
   // Create quest form state
   const [newQuestTitle, setNewQuestTitle] = useState('')
@@ -254,8 +261,15 @@ export default function QuestsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 pb-24">
+      {/* Play Mode Banner */}
+      <PlayModeBanner />
+      
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      <div className={`border-b px-4 py-3 ${
+        isParentView 
+          ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700' 
+          : 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800'
+      }`}>
         <div className="flex items-center justify-between max-w-2xl mx-auto">
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -264,9 +278,14 @@ export default function QuestsPage() {
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
               🗺️ Quests
             </h1>
+            {!isParentView && (
+              <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full">
+                View Only
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
-            {member?.role === 'parent' && (
+            {canManageQuests && (
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors text-sm btn-press shadow-md hover:shadow-lg"
@@ -274,9 +293,7 @@ export default function QuestsPage() {
                 + New Quest
               </button>
             )}
-            <Link href="/dashboard/profile" className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-lg hover:ring-2 hover:ring-blue-500 transition-all">
-              👤
-            </Link>
+            <HeroSwitcher />
           </div>
         </div>
       </div>
@@ -357,7 +374,7 @@ export default function QuestsPage() {
                         <span className="text-sm font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 px-3 py-1 rounded-lg">
                           +{quest.xp_reward_per_participant} XP
                         </span>
-                        {member?.role === 'parent' && (
+                        {canManageQuests && (
                           <button
                             onClick={() => handleDeleteQuest(quest.id)}
                             className="text-xs text-red-500 hover:text-red-600"
@@ -503,11 +520,11 @@ export default function QuestsPage() {
               No quests yet
             </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
-              {member?.role === 'parent'
+              {canManageQuests
                 ? 'Create a family quest to earn XP together!'
                 : 'Ask a parent to create a quest for the family.'}
             </p>
-            {member?.role === 'parent' && (
+            {canManageQuests && (
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors"
