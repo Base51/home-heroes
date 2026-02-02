@@ -210,6 +210,8 @@ export async function addKidToFamily(
  * Get all family members with their heroes
  */
 export async function getFamilyMembersWithHeroes(familyId: string) {
+  console.log('🔵 getFamilyMembersWithHeroes: Fetching for family:', familyId)
+  
   const { data, error } = await supabase
     .from('family_members')
     .select(`
@@ -220,10 +222,11 @@ export async function getFamilyMembersWithHeroes(familyId: string) {
     .order('created_at', { ascending: true })
 
   if (error) {
-    console.error('Error fetching family members:', error)
+    console.error('🔴 getFamilyMembersWithHeroes: Error:', error)
     return []
   }
 
+  console.log('✅ getFamilyMembersWithHeroes: Raw data:', JSON.stringify(data, null, 2))
   return data
 }
 

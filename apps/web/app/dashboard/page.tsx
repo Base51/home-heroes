@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/auth'
 import { getUserFamily, getFamilyMembersWithHeroes, getCurrentFamilyMember, getHeroByFamilyMemberId, type Family } from '@/lib/family'
 import { getStreakEmoji } from '@/lib/streaks'
 import { getLevelInfo } from '@/lib/levels'
 import { getTasksWithCompletionStatus, completeTask, getTaskIcon, type TaskWithCompletions } from '@/lib/tasks'
+import { useHero, getHeroEmoji } from '@/lib/hero-context'
+import { HeroSwitcher } from '@/components/hero-switcher'
 import type { User } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
@@ -211,9 +212,7 @@ export default function DashboardPage() {
             <div className="px-3 py-1 bg-amber-400 rounded-full font-bold text-sm text-gray-900">
               Lv. {familyLevel}
             </div>
-            <Link href="/dashboard/profile" className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-lg hover:ring-2 hover:ring-blue-500 transition-all">
-              👤
-            </Link>
+            <HeroSwitcher />
           </div>
         </div>
       </div>
@@ -280,11 +279,7 @@ export default function DashboardPage() {
                 <div
                   className="w-12 h-12 rounded-full border-3 border-white dark:border-gray-800 bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-2xl shadow-md"
                 >
-                  {member.heroes[0]?.hero_type === 'super_mommy' && '🦸‍♀️'}
-                  {member.heroes[0]?.hero_type === 'super_daddy' && '🦸‍♂️'}
-                  {member.heroes[0]?.hero_type === 'kid_male' && '🧒'}
-                  {member.heroes[0]?.hero_type === 'kid_female' && '👧'}
-                  {!member.heroes[0] && '👤'}
+                  {member.heroes[0] ? getHeroEmoji(member.heroes[0].hero_type) : '👤'}
                 </div>
                 {/* Streak indicator */}
                 {member.heroes[0]?.current_streak > 0 && (
