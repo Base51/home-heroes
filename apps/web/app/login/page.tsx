@@ -114,9 +114,11 @@ export default function LoginPage() {
             />
           </div>
 
-          <PrimaryButton type="submit" loading={loading}>
-            Sign In
-          </PrimaryButton>
+          <div className="flex justify-center">
+            <PrimaryButton type="submit" loading={loading}>
+              Sign In
+            </PrimaryButton>
+          </div>
         </form>
 
         <div className="mt-6 text-center">

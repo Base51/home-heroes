@@ -9,6 +9,7 @@ export interface Hero {
   family_member_id: string
   hero_name: string
   hero_type: HeroType
+  avatar_url?: string
   level: number
   total_xp: number
   current_streak: number
@@ -20,6 +21,7 @@ interface HeroContextType {
   activeHero: Hero | null
   setActiveHero: (hero: Hero) => void
   updateHeroXP: (heroId: string, xpGained: number) => void
+  updateHeroAvatar: (heroId: string, avatar: string) => void
   heroes: Hero[]
   isParentView: boolean
   toggleParentView: () => void
@@ -166,6 +168,24 @@ export function HeroProvider({ children }: { children: ReactNode }) {
     ))
   }
 
+  // Update hero avatar locally for immediate UI feedback
+  const updateHeroAvatar = (heroId: string, avatar: string) => {
+    // Update the active hero if it matches
+    setActiveHeroState(prev => {
+      if (prev && prev.id === heroId) {
+        return { ...prev, avatar_url: avatar }
+      }
+      return prev
+    })
+    
+    // Also update in the heroes list
+    setHeroes(prev => prev.map(h => 
+      h.id === heroId 
+        ? { ...h, avatar_url: avatar }
+        : h
+    ))
+  }
+
   const refreshHeroes = async () => {
     await loadHeroes()
   }
@@ -175,6 +195,7 @@ export function HeroProvider({ children }: { children: ReactNode }) {
       activeHero,
       setActiveHero,
       updateHeroXP,
+      updateHeroAvatar,
       heroes,
       isParentView,
       toggleParentView,

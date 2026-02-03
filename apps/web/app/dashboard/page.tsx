@@ -10,14 +10,16 @@ import { getStreakEmoji } from '@/lib/streaks'
 import { getLevelInfo } from '@/lib/levels'
 import { getTasksWithCompletionStatus, completeTask, getTaskIcon, type TaskWithCompletions } from '@/lib/tasks'
 import { useHero, getHeroEmoji } from '@/lib/hero-context'
+import { updateHeroAvatar as saveHeroAvatar } from '@/lib/hero'
 import { HeroSwitcher } from '@/components/hero-switcher'
 import { PlayModeBanner } from '@/components/play-mode-banner'
 import { XPBurst } from '@/components/ui'
+import { AvatarPicker } from '@/components/avatar-picker'
 import type { User } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { activeHero, isParentView, updateHeroXP } = useHero()
+  const { activeHero, isParentView, updateHeroXP, updateHeroAvatar } = useHero()
   const [user, setUser] = useState<User | null>(null)
   const [family, setFamily] = useState<Family | null>(null)
   const [familyMembers, setFamilyMembers] = useState<any[]>([])
@@ -25,6 +27,7 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<TaskWithCompletions[]>([])
   const [completingTaskId, setCompletingTaskId] = useState<string | null>(null)
   const [xpAnimation, setXpAnimation] = useState<{ show: boolean; xp: number }>({ show: false, xp: 0 })
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   const [loading, setLoading] = useState(true)
   const [checkingFamily, setCheckingFamily] = useState(true)
 
@@ -272,14 +275,24 @@ export default function DashboardPage() {
                 : 'bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 border-purple-200 dark:border-purple-700'
             }`}>
               <div className="flex items-center gap-4">
-                {/* Hero Avatar */}
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-md ${
-                  isParentView
-                    ? 'bg-gradient-to-br from-blue-400 to-purple-400'
-                    : 'bg-gradient-to-br from-purple-400 to-pink-400'
-                }`}>
-                  {getHeroEmoji(displayHero.hero_type)}
-                </div>
+                {/* Hero Avatar - Clickable to change */}
+                <button
+                  onClick={() => setShowAvatarPicker(true)}
+                  className="relative group"
+                  title="Click to change avatar"
+                >
+                  <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-md transition-transform group-hover:scale-105 ${
+                    isParentView
+                      ? 'bg-gradient-to-br from-blue-400 to-purple-400'
+                      : 'bg-gradient-to-br from-purple-400 to-pink-400'
+                  }`}>
+                    {displayHero.avatar_url || getHeroEmoji(displayHero.hero_type)}
+                  </div>
+                  {/* Edit indicator */}
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity border border-gray-200 dark:border-gray-600">
+                    ✏️
+                  </div>
+                </button>
                 
                 {/* Hero Info */}
                 <div className="flex-1">
@@ -331,6 +344,30 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Avatar Picker Modal */}
+      {showAvatarPicker && displayHero && (
+        <AvatarPicker
+          currentAvatar={displayHero.avatar_url || getHeroEmoji(displayHero.hero_type)}
+          onSelect={async (avatar) => {
+            const success = await saveHeroAvatar(displayHero.id, avatar)
+            if (success) {
+              // Update context for immediate UI feedback
+              updateHeroAvatar(displayHero.id, avatar)
+              // Update local state immediately
+              if (currentHero && currentHero.id === displayHero.id) {
+                setCurrentHero((prev: any) => prev ? { ...prev, avatar_url: avatar } : prev)
+              }
+              // Refresh family members to sync avatar
+              if (family) {
+                const members = await getFamilyMembersWithHeroes(family.id)
+                setFamilyMembers(members)
+              }
+            }
+          }}
+          onClose={() => setShowAvatarPicker(false)}
+        />
       )}
 
       <main className="max-w-2xl mx-auto px-4 pt-6 pb-4">
