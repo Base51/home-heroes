@@ -75,7 +75,7 @@ export default function SignUpPage() {
         <div className="text-center mb-8">          <div className="flex justify-center mb-6">
             <Image 
               src="/home-heroes-logo.png" 
-              alt="Home Heroes" 
+              alt="Home Heroes - Cooperative Family Productivity Game" 
               width={150} 
               height={45}
               className="h-12 w-auto"

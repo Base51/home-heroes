@@ -346,7 +346,7 @@ export default function OnboardingPage() {
               <div className="flex justify-center mb-6">
                 <Image 
                   src="/home-heroes-logo.png" 
-                  alt="Home Heroes" 
+                  alt="Home Heroes - Turn Chores Into Adventures for Kids" 
                   width={280} 
                   height={84}
                   priority

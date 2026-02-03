@@ -60,7 +60,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-6">
             <Image 
               src="/home-heroes-logo.png" 
-              alt="Home Heroes" 
+              alt="Home Heroes - Family Task Management Game with XP and Badges" 
               width={300} 
               height={145}
               className="w-auto"

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -114,11 +115,14 @@ export default function LandingPage() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🏠</span>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Home Heroes
-            </span>
+          <Link href="/" className="flex items-center">
+            <Image 
+              src="/home-heroes-logo.png" 
+              alt="Home Heroes - Family Chores Game App for Kids and Parents" 
+              width={150} 
+              height={72}
+              className="h-10 w-auto"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
@@ -312,9 +316,14 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 py-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div className="col-span-2 md:col-span-1">
-              <Link href="/" className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">🏠</span>
-                <span className="text-xl font-bold text-white">Home Heroes</span>
+              <Link href="/" className="flex items-center mb-4">
+                <Image 
+                  src="/home-heroes-logo.png" 
+                  alt="Home Heroes - Gamified Household Tasks for Families" 
+                  width={150} 
+                  height={72}
+                  className="h-10 w-auto"
+                />
               </Link>
               <p className="text-sm">
                 Transform household tasks into epic family adventures.
