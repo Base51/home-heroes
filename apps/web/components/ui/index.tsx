@@ -1,6 +1,55 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, ButtonHTMLAttributes } from 'react'
+
+/**
+ * Brand Colors
+ * Use these constants for consistent styling across the app
+ */
+export const BRAND_COLORS = {
+  primary: '#3ed0ff',      // Light blue - primary button background
+  primaryDark: '#19adda',  // Dark blue - shadows, accents, links
+} as const
+
+/**
+ * Primary Button - Main action button with 3D pressed effect
+ * Colors: Background #3ed0ff, Shadow #19adda
+ */
+export interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children: ReactNode
+  loading?: boolean
+  fullWidth?: boolean
+}
+
+export function PrimaryButton({ 
+  children, 
+  loading = false, 
+  fullWidth = false,
+  disabled,
+  className = '',
+  ...props 
+}: PrimaryButtonProps) {
+  return (
+    <button
+      disabled={disabled || loading}
+      className={`
+        ${fullWidth ? 'w-full' : 'w-1/2 mx-auto'}
+        block py-3 px-4 text-white font-semibold rounded-lg
+        transition-all duration-100
+        disabled:bg-gray-400 disabled:shadow-none disabled:translate-y-0
+        active:translate-y-1 active:shadow-none
+        ${className}
+      `}
+      style={{ 
+        backgroundColor: disabled || loading ? undefined : BRAND_COLORS.primary,
+        boxShadow: disabled || loading ? undefined : `0 4px 0 ${BRAND_COLORS.primaryDark}`
+      }}
+      {...props}
+    >
+      {loading ? 'Loading...' : children}
+    </button>
+  )
+}
 
 /**
  * Skeleton loading component

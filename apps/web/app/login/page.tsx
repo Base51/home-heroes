@@ -6,6 +6,7 @@ import { signIn } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
+import { PrimaryButton } from '@/components/ui'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -60,17 +61,14 @@ export default function LoginPage() {
             <Image 
               src="/home-heroes-logo.png" 
               alt="Home Heroes" 
-              width={150} 
-              height={45}
-              className="h-12 w-auto"
+              width={300} 
+              height={145}
+              className="w-auto"
             />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome Back! 🦸
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Welcome Back!
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Sign in to Hero HQ
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -116,13 +114,9 @@ export default function LoginPage() {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
+          <PrimaryButton type="submit" loading={loading}>
+            Sign In
+          </PrimaryButton>
         </form>
 
         <div className="mt-6 text-center">
@@ -130,7 +124,8 @@ export default function LoginPage() {
             Don't have an account?{' '}
             <Link 
               href="/signup" 
-              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-semibold"
+              className="font-semibold hover:underline"
+              style={{ color: '#19adda' }}
             >
               Sign Up
             </Link>
