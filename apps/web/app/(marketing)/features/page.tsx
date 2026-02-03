@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { PrimaryButton } from '@/components/ui'
 
 const FEATURES = [
   {
@@ -110,11 +111,10 @@ export default function FeaturesPage() {
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
             A complete system designed to make household tasks fun, rewarding, and collaborative for the whole family.
           </p>
-          <Link
-            href="/onboarding"
-            className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
-          >
-            Get Started Free
+          <Link href="/onboarding">
+            <PrimaryButton className="px-8 py-4 text-lg whitespace-nowrap">
+              Get Started Free
+            </PrimaryButton>
           </Link>
         </div>
       </section>
@@ -197,11 +197,10 @@ export default function FeaturesPage() {
           <p className="text-xl text-white/80 mb-8">
             Start your family's adventure today. It's free!
           </p>
-          <Link
-            href="/onboarding"
-            className="inline-block px-10 py-5 bg-white hover:bg-gray-100 text-gray-900 text-xl font-bold rounded-xl transition-all shadow-lg hover:shadow-xl"
-          >
-            Get Started Free 🦸
+          <Link href="/onboarding">
+            <PrimaryButton className="px-10 py-5 text-xl whitespace-nowrap">
+              Get Started Free 🦸
+            </PrimaryButton>
           </Link>
         </div>
       </section>

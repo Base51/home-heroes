@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { PrimaryButton } from '@/components/ui'
 
 const NAV_LINKS = [
   { href: '/features', label: 'Features' },
@@ -16,11 +17,14 @@ function MarketingHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">🏠</span>
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Home Heroes
-          </span>
+        <Link href="/" className="flex items-center">
+          <Image 
+            src="/home-heroes-logo.png" 
+            alt="Home Heroes - Family Chores Game App for Kids and Parents" 
+            width={150} 
+            height={72}
+            className="h-10 w-auto"
+          />
         </Link>
 
         {/* Nav Links */}
@@ -48,11 +52,10 @@ function MarketingHeader() {
           >
             Sign In
           </Link>
-          <Link
-            href="/onboarding"
-            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
-          >
-            Get Started Free
+          <Link href="/onboarding">
+            <PrimaryButton className="px-4 py-2 text-sm whitespace-nowrap">
+              Get Started Free
+            </PrimaryButton>
           </Link>
         </div>
       </div>
@@ -67,9 +70,14 @@ function MarketingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">🏠</span>
-              <span className="text-xl font-bold text-white">Home Heroes</span>
+            <Link href="/" className="flex items-center mb-4">
+              <Image 
+                src="/home-heroes-logo.png" 
+                alt="Home Heroes - Gamified Household Tasks for Families" 
+                width={150} 
+                height={72}
+                className="h-10 w-auto"
+              />
             </Link>
             <p className="text-sm">
               Transform household tasks into epic family adventures.
