@@ -371,104 +371,104 @@ export default function DashboardPage() {
       )}
 
       <main className="max-w-2xl mx-auto px-4 pt-6 pb-4">
-        {/* B) Family Emblem (Center Anchor) */}
-        <div className="flex justify-center mb-6">
-          <div className="relative w-32 h-32">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              {/* Shield/House base */}
-              <path
-                d="M50 10 L80 30 L80 70 L50 90 L20 70 L20 30 Z"
-                fill="url(#shieldGradient)"
-                stroke="#f59e0b"
-                strokeWidth="2"
-              />
-              {/* House icon inside */}
-              <path
-                d="M50 35 L35 48 L35 65 L65 65 L65 48 Z"
-                fill="#fff"
-                opacity="0.3"
-              />
-              <rect x="45" y="55" width="10" height="10" fill="#fff" opacity="0.5" />
-              <defs>
-                <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#3b82f6" />
-                  <stop offset="100%" stopColor="#8b5cf6" />
-                </linearGradient>
-              </defs>
-            </svg>
-            {/* Level badge */}
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center font-bold text-sm border-2 border-white dark:border-gray-800">
-              {familyLevel}
-            </div>
-          </div>
-        </div>
-
-        {/* C) XP Progress Bar */}
-        <div className="mb-6 px-2">
-          <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-8 overflow-hidden relative">
-            <div 
-              className="h-full bg-gradient-to-r from-amber-400 to-yellow-500 transition-all duration-500 ease-out flex items-center justify-end pr-3"
-              style={{ width: `${xpProgress}%` }}
-            >
-              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm font-bold text-gray-900 dark:text-white drop-shadow">
-                {currentXP} / {nextLevelXP} XP
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* D) Family Avatars with Streaks */}
-        <Link href="/dashboard/family" className="flex justify-center mb-6 group">
-          <div className="flex -space-x-3">
-            {familyMembers.slice(0, 6).map((member: any, index: number) => (
-              <div
-                key={member.id}
-                className="relative group-hover:scale-105 transition-transform"
-                style={{ zIndex: familyMembers.length - index }}
-              >
-                <div
-                  className="w-12 h-12 rounded-full border-3 border-white dark:border-gray-800 bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-2xl shadow-md"
-                >
-                  {member.heroes[0] ? getHeroEmoji(member.heroes[0].hero_type) : '👤'}
-                </div>
-                {/* Streak indicator */}
-                {member.heroes[0]?.current_streak > 0 && (
-                  <div className="absolute -bottom-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-white dark:border-gray-800">
-                    {member.heroes[0].current_streak}
-                  </div>
-                )}
+        {/* Family HQ Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+          {/* Header Row */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              {/* Family Emblem */}
+              <div className="relative w-14 h-14">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <path
+                    d="M50 10 L80 30 L80 70 L50 90 L20 70 L20 30 Z"
+                    fill="url(#shieldGradient)"
+                    stroke="#f59e0b"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M50 35 L35 48 L35 65 L65 65 L65 48 Z"
+                    fill="#fff"
+                    opacity="0.3"
+                  />
+                  <rect x="45" y="55" width="10" height="10" fill="#fff" opacity="0.5" />
+                  <defs>
+                    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#3b82f6" />
+                      <stop offset="100%" stopColor="#8b5cf6" />
+                    </linearGradient>
+                  </defs>
+                </svg>
               </div>
-            ))}
-          </div>
-        </Link>
-
-        {/* Family Streak Summary */}
-        {familyMembers.length > 0 && (
-          <div className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-2xl p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                  {family?.name || 'Family HQ'}
+                </h2>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="px-2 py-0.5 bg-amber-400 text-gray-900 text-xs font-bold rounded-full">
+                    Lv. {familyLevel}
+                  </span>
+                  <span>•</span>
+                  <span>{familyMembers.length} Heroes</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Best Streak Badge */}
+            {familyMembers.length > 0 && (
+              <div className="text-center">
+                <div className="text-2xl">
                   {getStreakEmoji(Math.max(...familyMembers.map((m: any) => m.heroes[0]?.current_streak || 0)))}
-                </span>
-                <div>
-                  <div className="font-bold text-gray-900 dark:text-white">Family Streaks</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {familyMembers.filter((m: any) => m.heroes[0]?.current_streak > 0).length} / {familyMembers.length} heroes on a streak
-                  </div>
+                </div>
+                <div className="text-xs font-bold text-orange-600 dark:text-orange-400">
+                  {Math.max(...familyMembers.map((m: any) => m.heroes[0]?.current_streak || 0))} day
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                  {Math.max(...familyMembers.map((m: any) => m.heroes[0]?.current_streak || 0))}
-                </div>
-                <div className="text-xs text-gray-500">Best streak</div>
+            )}
+          </div>
+
+          {/* Family XP Progress Bar */}
+          <div className="mb-4">
+            <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden relative">
+              <div 
+                className="h-full bg-gradient-to-r from-amber-400 to-yellow-500 transition-all duration-500 ease-out"
+                style={{ width: `${xpProgress}%` }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-xs font-bold text-gray-900 dark:text-white drop-shadow">
+                  {currentXP} / {nextLevelXP} XP
+                </span>
               </div>
             </div>
           </div>
-        )}
+
+          {/* Family Members Row */}
+          <Link href="/dashboard/family" className="block group">
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <div className="flex -space-x-2">
+                {familyMembers.slice(0, 6).map((member: any, index: number) => (
+                  <div
+                    key={member.id}
+                    className="relative group-hover:scale-105 transition-transform"
+                    style={{ zIndex: familyMembers.length - index }}
+                  >
+                    <div className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800 bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-lg shadow-sm">
+                      {member.heroes[0]?.avatar_url || (member.heroes[0] ? getHeroEmoji(member.heroes[0].hero_type) : '👤')}
+                    </div>
+                    {member.heroes[0]?.current_streak > 0 && (
+                      <div className="absolute -bottom-1 -right-1 bg-orange-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white dark:border-gray-800">
+                        {member.heroes[0].current_streak}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <span>View family</span>
+                <span>→</span>
+              </div>
+            </div>
+          </Link>
+        </div>
 
         {/* E) Today's Tasks */}
         <div className="space-y-3">
