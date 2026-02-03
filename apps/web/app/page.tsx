@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { PrimaryButton } from '@/components/ui'
 
 const FEATURES = [
   {
@@ -144,11 +145,10 @@ export default function LandingPage() {
             >
               Sign In
             </Link>
-            <Link
-              href="/onboarding"
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
-            >
-              Get Started Free
+            <Link href="/onboarding">
+              <PrimaryButton className="px-4 py-2 text-sm whitespace-nowrap">
+                Get Started Free
+              </PrimaryButton>
             </Link>
           </div>
         </div>
@@ -193,11 +193,10 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link
-              href="/onboarding"
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105"
-            >
-              Start Your Adventure — Free
+            <Link href="/onboarding">
+              <PrimaryButton className="px-8 py-4 text-lg whitespace-nowrap">
+                Start Your Adventure — Free
+              </PrimaryButton>
             </Link>
             <Link
               href="/features"

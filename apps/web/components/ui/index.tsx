@@ -33,8 +33,8 @@ export function PrimaryButton({
     <button
       disabled={disabled || loading}
       className={`
-        ${fullWidth ? 'w-full' : 'w-1/2 mx-auto'}
-        block py-3 px-4 text-white font-semibold rounded-lg
+        ${fullWidth ? 'w-full' : 'w-fit'}
+        inline-flex items-center justify-center py-3 px-4 text-white font-semibold rounded-lg
         transition-all duration-100
         disabled:bg-gray-400 disabled:shadow-none disabled:translate-y-0
         active:translate-y-1 active:shadow-none
