@@ -12,17 +12,19 @@ import { getTasksWithCompletionStatus, completeTask, getTaskIcon, type TaskWithC
 import { useHero, getHeroEmoji } from '@/lib/hero-context'
 import { HeroSwitcher } from '@/components/hero-switcher'
 import { PlayModeBanner } from '@/components/play-mode-banner'
+import { XPBurst } from '@/components/ui'
 import type { User } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { activeHero, isParentView } = useHero()
+  const { activeHero, isParentView, updateHeroXP } = useHero()
   const [user, setUser] = useState<User | null>(null)
   const [family, setFamily] = useState<Family | null>(null)
   const [familyMembers, setFamilyMembers] = useState<any[]>([])
   const [currentHero, setCurrentHero] = useState<any | null>(null)
   const [tasks, setTasks] = useState<TaskWithCompletions[]>([])
   const [completingTaskId, setCompletingTaskId] = useState<string | null>(null)
+  const [xpAnimation, setXpAnimation] = useState<{ show: boolean; xp: number }>({ show: false, xp: 0 })
   const [loading, setLoading] = useState(true)
   const [checkingFamily, setCheckingFamily] = useState(true)
 
@@ -118,10 +120,24 @@ export default function DashboardPage() {
       })
       
       if (result) {
+        // Show XP burst animation
+        setXpAnimation({ show: true, xp: task.xp_reward })
+        
         // Update tasks list to mark as completed
         setTasks(prev => prev.map(t => 
           t.id === task.id ? { ...t, completed_today: true } : t
         ))
+        
+        // Update hero XP in context for immediate UI feedback (fills the XP bar)
+        updateHeroXP(heroForCompletion.id, task.xp_reward)
+        
+        // Also update the current hero's XP locally
+        if (currentHero && currentHero.id === heroForCompletion.id) {
+          setCurrentHero((prev: any) => prev ? {
+            ...prev,
+            total_xp: (prev.total_xp || 0) + task.xp_reward
+          } : prev)
+        }
         
         // Refresh family members to update XP display
         if (family) {
@@ -202,8 +218,20 @@ export default function DashboardPage() {
   const nextLevelXP = familyLevelInfo.xpNeeded
   const xpProgress = familyLevelInfo.progressPercent
 
+  // Get the hero to display in the profile card
+  const displayHero = activeHero || currentHero
+  const heroLevelInfo = displayHero ? getLevelInfo(displayHero.total_xp || 0) : null
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 pb-20">
+      {/* XP Burst Animation */}
+      {xpAnimation.show && (
+        <XPBurst 
+          xp={xpAnimation.xp} 
+          onComplete={() => setXpAnimation({ show: false, xp: 0 })} 
+        />
+      )}
+      
       {/* Play Mode Banner - shown when kid is playing */}
       <PlayModeBanner />
       
@@ -233,6 +261,77 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Hero Profile Card */}
+      {displayHero && heroLevelInfo && (
+        <div className="px-4 pt-4">
+          <div className="max-w-2xl mx-auto">
+            <div className={`rounded-2xl p-4 shadow-lg border ${
+              isParentView 
+                ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700' 
+                : 'bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 border-purple-200 dark:border-purple-700'
+            }`}>
+              <div className="flex items-center gap-4">
+                {/* Hero Avatar */}
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-md ${
+                  isParentView
+                    ? 'bg-gradient-to-br from-blue-400 to-purple-400'
+                    : 'bg-gradient-to-br from-purple-400 to-pink-400'
+                }`}>
+                  {getHeroEmoji(displayHero.hero_type)}
+                </div>
+                
+                {/* Hero Info */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                      {displayHero.hero_name}
+                    </h2>
+                    <span className="px-2 py-0.5 bg-amber-400 text-gray-900 text-xs font-bold rounded-full">
+                      Lv. {heroLevelInfo.level}
+                    </span>
+                  </div>
+                  
+                  {/* XP Progress Bar */}
+                  <div className="mb-2">
+                    <div className={`bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden relative ${
+                      xpAnimation.show ? 'animate-glow ring-2 ring-amber-400' : ''
+                    }`}>
+                      <div 
+                        className={`h-full transition-all duration-700 ease-out ${
+                          isParentView
+                            ? 'bg-gradient-to-r from-blue-400 to-purple-500'
+                            : 'bg-gradient-to-r from-purple-400 to-pink-500'
+                        } ${xpAnimation.show ? 'animate-shimmer' : ''}`}
+                        style={{ width: `${heroLevelInfo.progressPercent}%` }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className={`text-xs font-bold text-gray-900 dark:text-white drop-shadow ${
+                          xpAnimation.show ? 'scale-110 transition-transform' : ''
+                        }`}>
+                          {heroLevelInfo.xpProgress} / {heroLevelInfo.xpNeeded} XP
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Stats Row */}
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1">
+                      <span>⭐</span>
+                      <span className="text-gray-600 dark:text-gray-400">{displayHero.total_xp || 0} Total XP</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>{getStreakEmoji(displayHero.current_streak || 0)}</span>
+                      <span className="text-gray-600 dark:text-gray-400">{displayHero.current_streak || 0} Day Streak</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-2xl mx-auto px-4 pt-6 pb-4">
         {/* B) Family Emblem (Center Anchor) */}

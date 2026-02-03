@@ -19,6 +19,7 @@ export interface Hero {
 interface HeroContextType {
   activeHero: Hero | null
   setActiveHero: (hero: Hero) => void
+  updateHeroXP: (heroId: string, xpGained: number) => void
   heroes: Hero[]
   isParentView: boolean
   toggleParentView: () => void
@@ -147,6 +148,24 @@ export function HeroProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  // Update hero XP locally for immediate UI feedback (filling animation)
+  const updateHeroXP = (heroId: string, xpGained: number) => {
+    // Update the active hero if it matches
+    setActiveHeroState(prev => {
+      if (prev && prev.id === heroId) {
+        return { ...prev, total_xp: (prev.total_xp || 0) + xpGained }
+      }
+      return prev
+    })
+    
+    // Also update in the heroes list
+    setHeroes(prev => prev.map(h => 
+      h.id === heroId 
+        ? { ...h, total_xp: (h.total_xp || 0) + xpGained }
+        : h
+    ))
+  }
+
   const refreshHeroes = async () => {
     await loadHeroes()
   }
@@ -155,6 +174,7 @@ export function HeroProvider({ children }: { children: ReactNode }) {
     <HeroContext.Provider value={{
       activeHero,
       setActiveHero,
+      updateHeroXP,
       heroes,
       isParentView,
       toggleParentView,
