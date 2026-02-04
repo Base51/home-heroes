@@ -19,6 +19,7 @@ import {
   type HeroType 
 } from '@/lib/family'
 import { getLevelInfo, getLevelColor } from '@/lib/levels'
+import { getStreakEmoji } from '@/lib/streaks'
 
 type FamilyMemberWithHero = FamilyMember & {
   heroes: Hero[]
@@ -380,41 +381,64 @@ export default function FamilyPage() {
               return (
                 <div
                   key={member.id}
-                  className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-200 dark:border-gray-700"
+                  className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg border border-gray-200 dark:border-gray-700"
                 >
                   <div className="flex items-center gap-4">
+                    {/* Avatar */}
                     <div className="relative">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-3xl">
-                        {getHeroEmoji(hero?.hero_type || '')}
-                      </div>
-                      {hero?.current_streak > 0 && (
-                        <div className="absolute -bottom-1 -right-1 bg-orange-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border border-white dark:border-gray-700">
-                          🔥
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-bold text-gray-900 dark:text-white">
-                        {hero?.hero_name || member.display_name}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {getHeroTypeLabel(hero?.hero_type || '')}
-                      </div>
-                      {levelInfo && (
-                        <div className={`text-xs font-medium bg-gradient-to-r ${getLevelColor(levelInfo.level)} bg-clip-text text-transparent`}>
-                          Level {levelInfo.level} • {hero?.total_xp || 0} XP
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xs text-gray-400 dark:text-gray-500">
-                        👑 Parent
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-3xl shadow-md">
+                        {hero?.avatar_url || getHeroEmoji(hero?.hero_type || '')}
                       </div>
                       {member.id === currentMember?.id && (
-                        <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-1">
-                          (You)
+                        <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white dark:border-gray-800">
+                          YOU
                         </div>
                       )}
+                    </div>
+                    
+                    {/* Hero Info */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                          {hero?.hero_name || member.display_name}
+                        </h4>
+                        {levelInfo && (
+                          <span className="px-2 py-0.5 bg-amber-400 text-gray-900 text-xs font-bold rounded-full">
+                            Lv. {levelInfo.level}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-400">👑</span>
+                      </div>
+                      
+                      {/* XP Progress Bar */}
+                      {levelInfo && (
+                        <div className="mb-2">
+                          <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden relative">
+                            <div 
+                              className="h-full bg-gradient-to-r from-blue-400 to-purple-500 transition-all duration-500"
+                              style={{ width: `${levelInfo.progressPercent}%` }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-[10px] font-bold text-gray-900 dark:text-white drop-shadow">
+                                {levelInfo.xpProgress} / {levelInfo.xpNeeded} XP
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Stats Row */}
+                      <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <span>⭐</span>
+                          <span>{hero?.total_xp || 0} XP</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span>{getStreakEmoji(hero?.current_streak || 0)}</span>
+                          <span>{hero?.current_streak || 0} day streak</span>
+                        </span>
+                        <span className="text-gray-400">{getHeroTypeLabel(hero?.hero_type || '')}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -463,34 +487,68 @@ export default function FamilyPage() {
                 return (
                   <div
                     key={member.id}
-                    className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-200 dark:border-gray-700"
+                    className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-4 shadow-lg border border-purple-200 dark:border-purple-700"
                   >
                     <div className="flex items-center gap-4">
+                      {/* Avatar */}
                       <div className="relative">
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center text-3xl">
-                          {getHeroEmoji(hero?.hero_type || '')}
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-3xl shadow-md">
+                          {hero?.avatar_url || getHeroEmoji(hero?.hero_type || '')}
                         </div>
                         {hero?.current_streak > 0 && (
-                          <div className="absolute -bottom-1 -right-1 bg-orange-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border border-white dark:border-gray-700">
+                          <div className="absolute -bottom-1 -right-1 bg-orange-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
                             {hero.current_streak}
                           </div>
                         )}
                       </div>
+                      
+                      {/* Hero Info */}
                       <div className="flex-1">
-                        <div className="font-bold text-gray-900 dark:text-white">
-                          {hero?.hero_name || member.display_name}
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {hero?.hero_name || member.display_name}
+                          </h4>
+                          {levelInfo && (
+                            <span className="px-2 py-0.5 bg-amber-400 text-gray-900 text-xs font-bold rounded-full">
+                              Lv. {levelInfo.level}
+                            </span>
+                          )}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {getHeroTypeLabel(hero?.hero_type || '')}
-                        </div>
+                        
+                        {/* XP Progress Bar */}
                         {levelInfo && (
-                          <div className={`text-xs font-medium bg-gradient-to-r ${getLevelColor(levelInfo.level)} bg-clip-text text-transparent`}>
-                            Level {levelInfo.level} • {hero?.total_xp || 0} XP
+                          <div className="mb-2">
+                            <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden relative">
+                              <div 
+                                className="h-full bg-gradient-to-r from-purple-400 to-pink-500 transition-all duration-500"
+                                style={{ width: `${levelInfo.progressPercent}%` }}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-gray-900 dark:text-white drop-shadow">
+                                  {levelInfo.xpProgress} / {levelInfo.xpNeeded} XP
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         )}
+                        
+                        {/* Stats Row */}
+                        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                          <span className="flex items-center gap-1">
+                            <span>⭐</span>
+                            <span>{hero?.total_xp || 0} XP</span>
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span>{getStreakEmoji(hero?.current_streak || 0)}</span>
+                            <span>{hero?.current_streak || 0} day streak</span>
+                          </span>
+                          <span className="text-gray-400">{getHeroTypeLabel(hero?.hero_type || '')}</span>
+                        </div>
                       </div>
+                      
+                      {/* Actions */}
                       {isParent && (
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-1">
                           <button
                             onClick={() => openEditModal(member)}
                             className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
