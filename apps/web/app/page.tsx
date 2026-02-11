@@ -141,13 +141,21 @@ export default function LandingPage() {
             />
           </Link>
 
-          <Link
-            href="/onboarding"
-            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold rounded-full transition-all active:translate-y-0.5 text-white shadow-sm"
-            style={{ backgroundColor: YELLOW }}
-          >
-            Get Started
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
+            >
+              Login
+            </Link>
+            <Link
+              href="/onboarding"
+              className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold rounded-full transition-all active:translate-y-0.5 text-white shadow-sm"
+              style={{ backgroundColor: YELLOW }}
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       </header>
 
