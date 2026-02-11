@@ -5,14 +5,10 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { PrimaryButton } from '@/components/ui'
+
+/* ─── DATA ─────────────────────────────────────────────── */
 
 const FEATURES = [
-  {
-    emoji: '✨',
-    title: 'Trust-Based',
-    description: 'Tasks grant XP immediately. No approval needed. Build family trust through positive reinforcement.',
-  },
   {
     emoji: '🎮',
     title: 'Level Up Together',
@@ -38,6 +34,11 @@ const FEATURES = [
     title: 'Kid-Safe',
     description: 'Parents control everything. Kids access via shared device. GDPR & COPPA compliant.',
   },
+  {
+    emoji: '🎁',
+    title: 'Unlock Rewards',
+    description: 'Complete challenges to unlock special rewards and celebrate milestones as a family.',
+  },
 ]
 
 const HOW_IT_WORKS = [
@@ -61,17 +62,33 @@ const HOW_IT_WORKS = [
   },
 ]
 
-const HERO_TYPES = [
-  { emoji: '🦸‍♀️', label: 'Super Mommy' },
-  { emoji: '🦸‍♂️', label: 'Super Daddy' },
-  { emoji: '👧', label: 'Hero Girl' },
-  { emoji: '🧒', label: 'Hero Boy' },
+const SHOWCASE_BADGES = [
+  { emoji: '🎯', name: 'First Steps' },
+  { emoji: '🤝', name: 'Team Player' },
+  { emoji: '✨', name: 'Getting Started' },
+  { emoji: '🌟', name: 'Task Master' },
+  { emoji: '💯', name: 'Century Hero' },
+  { emoji: '🗡️', name: 'Quest Companion' },
+  { emoji: '🔥', name: 'Warming Up' },
+  { emoji: '💪', name: 'Fortnight Force' },
+  { emoji: '💫', name: 'XP Collector' },
+  { emoji: '⚡', name: 'Unstoppable' },
 ]
 
-const NAV_LINKS = [
-  { href: '/features', label: 'Features' },
-  { href: '/pricing', label: 'Pricing' },
+const TRUST_ITEMS = [
+  'Free forever plan',
+  'No credit card required',
+  'Kid-safe & GDPR compliant',
 ]
+
+/* ─── COLORS ───────────────────────────────────────────── */
+
+const SKY_BLUE = '#e8f4fd'
+const DARK_NAVY = '#0f172a'
+const YELLOW = '#facc15'
+const YELLOW_HOVER = '#eab308'
+
+/* ─── COMPONENT ────────────────────────────────────────── */
 
 export default function LandingPage() {
   const router = useRouter()
@@ -83,7 +100,7 @@ export default function LandingPage() {
       const authenticated = !!session
       setIsAuthenticated(authenticated)
       setLoading(false)
-      
+
       if (authenticated) {
         router.push('/dashboard')
       }
@@ -93,9 +110,7 @@ export default function LandingPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <div className="inline-block w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -104,222 +119,251 @@ export default function LandingPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Redirecting to dashboard...</p>
+          <div className="inline-block w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+          <p className="mt-4 text-gray-600">Redirecting to dashboard...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="bg-white">
+      {/* ── HEADER ─────────────────────────────────────── */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <Image 
-              src="/home-heroes-logo.png" 
-              alt="Home Heroes - Family Chores Game App for Kids and Parents" 
-              width={150} 
+            <Image
+              src="/home-heroes-logo.png"
+              alt="Home Heroes - Family Chores Game App for Kids and Parents"
+              width={150}
               height={72}
               className="h-10 w-auto"
             />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link href="/onboarding">
-              <PrimaryButton className="px-4 py-2 text-sm whitespace-nowrap">
-                Get Started Free
-              </PrimaryButton>
-            </Link>
-          </div>
+          <Link
+            href="/onboarding"
+            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold rounded-full transition-all active:translate-y-0.5 text-white shadow-sm"
+            style={{ backgroundColor: YELLOW }}
+          >
+            Get Started
+          </Link>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-16">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 text-6xl opacity-20 animate-bounce-slow">🏠</div>
-          <div className="absolute top-40 right-20 text-5xl opacity-20 animate-bounce-slow" style={{ animationDelay: '0.5s' }}>⭐</div>
-          <div className="absolute bottom-40 left-1/4 text-4xl opacity-20 animate-bounce-slow" style={{ animationDelay: '1s' }}>🏅</div>
-          <div className="absolute bottom-20 right-1/4 text-5xl opacity-20 animate-bounce-slow" style={{ animationDelay: '1.5s' }}>🔥</div>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-4 py-20 md:py-32 text-center relative">
-          <div className="flex justify-center gap-4 mb-8">
-            {HERO_TYPES.map((hero, i) => (
-              <div
-                key={hero.label}
-                className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-2xl md:text-3xl shadow-lg animate-bounce-slow"
-                style={{ animationDelay: `${i * 0.2}s` }}
-              >
-                {hero.emoji}
-              </div>
-            ))}
-          </div>
-
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6">
-            Turn Chores Into
+      {/* ── SECTION 1 — HERO (Gradient Blue) ──────────────── */}
+      <section
+        className="pt-16"
+        style={{ background: 'linear-gradient(to right, #379ce5, #7acafc)' }}
+      >
+        <div className="max-w-[1200px] mx-auto px-4 py-20 md:py-28 lg:py-32 text-center">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 uppercase tracking-tight leading-tight" style={{ fontFamily: 'var(--font-baloo2)' }}>
+            Turn Everyday Tasks
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-              Epic Adventures
-            </span>
+            Into{' '}
+            <span style={{ color: YELLOW }} className="inline-block drop-shadow-sm">
+              Epic
+            </span>{' '}
+            Adventures
           </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
-            Home Heroes is a family game where everyone earns XP, levels up, and unlocks badges by completing household tasks together.
-          </p>
-          
-          <p className="text-lg text-gray-500 dark:text-gray-400 mb-10">
-            No punishment. No guilt. Just fun, progress, and family teamwork. 🦸‍♀️🦸‍♂️
+
+          <p className="text-xl md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto font-medium" style={{ fontFamily: 'var(--font-baloo2)' }}>
+            Build healthy habits together as a family.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/onboarding">
-              <PrimaryButton className="px-8 py-4 text-lg whitespace-nowrap">
-                Start Your Adventure — Free
-              </PrimaryButton>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Link
+              href="/onboarding"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full transition-all hover:scale-105 active:scale-100 shadow-md text-white"
+              style={{ backgroundColor: YELLOW }}
+            >
+              Start Your Adventure — Free
             </Link>
             <Link
-              href="/features"
-              className="px-8 py-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-lg font-semibold rounded-xl transition-all border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300"
+              href="#features"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full bg-white text-gray-800 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
             >
               See How It Works
             </Link>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-2">
-              <span className="text-green-500">✓</span>
-              <span>Free forever plan</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-500">✓</span>
-              <span>No credit card required</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-500">✓</span>
-              <span>Kid-safe & GDPR compliant</span>
-            </div>
+          {/* Trust row */}
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-white">
+            {TRUST_ITEMS.map((item) => (
+              <div key={item} className="flex items-center gap-2">
+                <span className="text-white font-bold">✓</span>
+                <span>{item}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-gray-900">
-        <div className="max-w-6xl mx-auto px-4">
+      {/* ── SECTION 2 — FEATURES GRID (White) ──────────── */}
+      <section id="features" className="py-20 md:py-28 bg-white">
+        <div className="max-w-[1200px] mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4" style={{ fontFamily: 'var(--font-baloo2)' }}>
               Everything Your Family Needs
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-500 max-w-2xl mx-auto">
               A complete system for turning household tasks into a fun, rewarding game.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {FEATURES.map((feature) => (
               <div
                 key={feature.title}
-                className="p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="p-6 bg-gray-50 rounded-2xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 <div className="text-4xl mb-4">{feature.emoji}</div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {feature.description}
-                </p>
+                <p className="text-gray-500">{feature.description}</p>
               </div>
             ))}
+          </div>
+
+          {/* Mid-CTA strip */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <span className="text-lg font-semibold text-gray-700">
+              Ready to become a Home Hero?
+            </span>
+            <Link
+              href="/onboarding"
+              className="inline-flex items-center justify-center px-6 py-3 text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-100 shadow-sm"
+              style={{ backgroundColor: YELLOW, color: '#1e293b' }}
+            >
+              Get Started Free
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-20 md:py-28 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
-        <div className="max-w-6xl mx-auto px-4">
+      {/* ── SECTION 3 — 3 STEPS (Sky Blue) ─────────────── */}
+      <section style={{ backgroundColor: SKY_BLUE }} className="py-20 md:py-28">
+        <div className="max-w-[1200px] mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4" style={{ fontFamily: 'var(--font-baloo2)' }}>
               Get Started in 3 Easy Steps
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
-              From signup to superhero in minutes.
+            <p className="text-xl text-gray-500">
+              From sign-up to superhero in minutes!
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {HOW_IT_WORKS.map((step) => (
               <div key={step.step} className="text-center">
                 <div className="relative inline-block mb-6">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-5xl shadow-lg">
+                  <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-5xl shadow-lg">
                     {step.emoji}
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-sm font-bold text-gray-900">
+                  <div
+                    className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-gray-900"
+                    style={{ backgroundColor: YELLOW }}
+                  >
                     {step.step}
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {step.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {step.description}
-                </p>
+                <p className="text-gray-500">{step.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link
+              href="/onboarding"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full transition-all hover:scale-105 active:scale-100 shadow-md"
+              style={{ backgroundColor: YELLOW, color: '#1e293b' }}
+            >
+              Start Your Adventure — Free
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4 — BADGES SHOWCASE (Dark Navy) ────── */}
+      <section style={{ backgroundColor: DARK_NAVY }} className="py-20 md:py-28">
+        <div className="max-w-[1200px] mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4" style={{ fontFamily: 'var(--font-baloo2)' }}>
+              Collect{' '}
+              <span style={{ color: YELLOW }}>Epic</span>{' '}
+              Badges
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Collect all badges and become Legendary!
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 mb-10">
+            {SHOWCASE_BADGES.map((badge) => (
+              <div
+                key={badge.name}
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 flex items-center justify-center text-3xl md:text-4xl">
+                  {badge.emoji}
+                </div>
+                <span className="text-sm font-medium text-gray-300 text-center">
+                  {badge.name}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-gray-500 text-lg">
+            … and many more!
+          </p>
+        </div>
+      </section>
+
+      {/* ── SECTION 5 — FINAL CTA (Sky Blue) ───────────── */}
+      <section style={{ backgroundColor: SKY_BLUE }} className="py-20 md:py-28">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6" style={{ fontFamily: 'var(--font-baloo2)' }}>
+            Ready to Become Heroes Together?
+          </h2>
+          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+            Join families who are turning everyday tasks into extraordinary adventures. Start free today!
+          </p>
+
+          <Link
+            href="/onboarding"
+            className="inline-flex items-center justify-center px-10 py-5 text-xl font-bold rounded-full transition-all hover:scale-105 active:scale-100 shadow-lg"
+            style={{ backgroundColor: YELLOW, color: '#1e293b' }}
+          >
+            Start Your Adventure — Free
+          </Link>
+
+          {/* Trust row */}
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500 mt-10">
+            {TRUST_ITEMS.map((item) => (
+              <div key={item} className="flex items-center gap-2">
+                <span className="text-green-500 font-bold">✓</span>
+                <span>{item}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 md:py-28 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-            Ready to Become Heroes Together?
-          </h2>
-          <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-            Join families who are turning everyday tasks into extraordinary adventures. Start free today!
-          </p>
-          <Link
-            href="/onboarding"
-            className="inline-block px-10 py-5 bg-white hover:bg-gray-100 text-gray-900 text-xl font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            Start Your Free Adventure 🚀
-          </Link>
-          <p className="mt-6 text-white/60 text-sm">
-            No credit card required • Setup in 2 minutes
-          </p>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400">
-        <div className="max-w-6xl mx-auto px-4 py-16">
+      {/* ── FOOTER (Dark Navy) ─────────────────────────── */}
+      <footer style={{ backgroundColor: DARK_NAVY }} className="text-gray-400">
+        <div className="max-w-[1200px] mx-auto px-4 py-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="flex items-center mb-4">
-                <Image 
-                  src="/home-heroes-logo.png" 
-                  alt="Home Heroes - Gamified Household Tasks for Families" 
-                  width={150} 
+                <Image
+                  src="/home-heroes-logo.png"
+                  alt="Home Heroes - Gamified Household Tasks for Families"
+                  width={150}
                   height={72}
                   className="h-10 w-auto"
                 />
@@ -357,12 +401,8 @@ export default function LandingPage() {
           </div>
 
           <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm">
-              © 2026 Home Heroes. All rights reserved.
-            </p>
-            <p className="text-sm">
-              Made with ❤️ for families everywhere
-            </p>
+            <p className="text-sm">© 2026 Home Heroes. All rights reserved.</p>
+            <p className="text-sm">Made with ❤️ for families everywhere</p>
           </div>
         </div>
       </footer>
