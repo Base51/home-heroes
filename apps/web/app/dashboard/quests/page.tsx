@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { getUserFamily, getCurrentFamilyMember, getHeroByFamilyMemberId, getFamilyMembersWithHeroes, type Family, type FamilyMember, type Hero } from '@/lib/family'
 import { getFamilyQuests, createQuest, joinQuest, leaveQuest, completeQuestParticipation, deleteQuest, type QuestWithParticipants } from '@/lib/quests'
+import { getLevelFromXP } from '@/lib/levels'
 import { useHero } from '@/lib/hero-context'
 import { PlayModeBanner } from '@/components/play-mode-banner'
 import { HeroSwitcher } from '@/components/hero-switcher'
@@ -157,7 +158,7 @@ export default function QuestsPage() {
       })
 
       if (result && family) {
-        setHero(prev => prev ? { ...prev, total_xp: result.newTotalXp } : prev)
+        setHero(prev => prev ? { ...prev, total_xp: result.newTotalXp, level: getLevelFromXP(result.newTotalXp) } : prev)
         const questsData = await getFamilyQuests(family.id, hero.id)
         setQuests(questsData)
       }

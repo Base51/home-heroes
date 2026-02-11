@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 import { supabase } from './supabase'
 import { getUserFamily, getFamilyMembersWithHeroes, type HeroType } from './family'
+import { getLevelFromXP } from './levels'
 
 export interface Hero {
   id: string
@@ -155,17 +156,20 @@ export function HeroProvider({ children }: { children: ReactNode }) {
     // Update the active hero if it matches
     setActiveHeroState(prev => {
       if (prev && prev.id === heroId) {
-        return { ...prev, total_xp: (prev.total_xp || 0) + xpGained }
+        const newXP = (prev.total_xp || 0) + xpGained
+        return { ...prev, total_xp: newXP, level: getLevelFromXP(newXP) }
       }
       return prev
     })
     
     // Also update in the heroes list
-    setHeroes(prev => prev.map(h => 
-      h.id === heroId 
-        ? { ...h, total_xp: (h.total_xp || 0) + xpGained }
-        : h
-    ))
+    setHeroes(prev => prev.map(h => {
+      if (h.id === heroId) {
+        const newXP = (h.total_xp || 0) + xpGained
+        return { ...h, total_xp: newXP, level: getLevelFromXP(newXP) }
+      }
+      return h
+    }))
   }
 
   // Update hero avatar locally for immediate UI feedback

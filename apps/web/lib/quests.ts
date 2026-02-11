@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 import { updateHeroStreak, calculateXpWithStreakBonus } from './streaks'
-import { checkLevelUp, type LevelUpResult } from './levels'
+import { checkLevelUp, getLevelFromXP, type LevelUpResult } from './levels'
 import { checkAndAwardBadges, type BadgeDefinition } from './badges'
 
 export type Quest = {
@@ -252,6 +252,7 @@ export async function completeQuestParticipation(params: {
     .from('heroes')
     .update({
       total_xp: newTotalXp,
+      level: getLevelFromXP(newTotalXp),
     })
     .eq('id', heroId)
 

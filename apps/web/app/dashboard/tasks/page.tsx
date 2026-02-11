@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { getUserFamily, getCurrentFamilyMember, getHeroByFamilyMemberId, type Family, type FamilyMember, type Hero } from '@/lib/family'
 import { getTasksWithCompletionStatus, createTask, completeTask, deleteTask, type TaskWithCompletions, type TaskFrequency } from '@/lib/tasks'
 import { getHeroStreakInfo, getStreakEmoji, getStreakDisplayText, calculateXpWithStreakBonus, type StreakInfo } from '@/lib/streaks'
-import { type LevelUpResult } from '@/lib/levels'
+import { type LevelUpResult, getLevelFromXP } from '@/lib/levels'
 import { type BadgeDefinition } from '@/lib/badges'
 import { useHero } from '@/lib/hero-context'
 import { PlayModeBanner } from '@/components/play-mode-banner'
@@ -151,6 +151,7 @@ export default function TasksPage() {
         setHero(prev => prev ? { 
           ...prev, 
           total_xp: result.newTotalXp,
+          level: getLevelFromXP(result.newTotalXp),
           current_streak: result.newStreak,
         } : prev)
         

@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/auth'
 import { getUserFamily, getFamilyMembersWithHeroes, getCurrentFamilyMember, getHeroByFamilyMemberId, type Family } from '@/lib/family'
 import { getStreakEmoji } from '@/lib/streaks'
-import { getLevelInfo } from '@/lib/levels'
+import { getLevelInfo, getLevelFromXP } from '@/lib/levels'
 import { getTasksWithCompletionStatus, completeTask, getTaskIcon, type TaskWithCompletions } from '@/lib/tasks'
 import { useHero, getHeroEmoji } from '@/lib/hero-context'
 import { updateHeroAvatar as saveHeroAvatar } from '@/lib/hero'
@@ -136,10 +136,11 @@ export default function DashboardPage() {
         
         // Also update the current hero's XP locally
         if (currentHero && currentHero.id === heroForCompletion.id) {
-          setCurrentHero((prev: any) => prev ? {
-            ...prev,
-            total_xp: (prev.total_xp || 0) + task.xp_reward
-          } : prev)
+          setCurrentHero((prev: any) => {
+            if (!prev) return prev
+            const newXP = (prev.total_xp || 0) + task.xp_reward
+            return { ...prev, total_xp: newXP, level: getLevelFromXP(newXP) }
+          })
         }
         
         // Refresh family members to update XP display

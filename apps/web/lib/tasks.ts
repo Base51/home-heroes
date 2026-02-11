@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 import { updateHeroStreak, calculateXpWithStreakBonus } from './streaks'
-import { checkLevelUp, type LevelUpResult } from './levels'
+import { checkLevelUp, getLevelFromXP, type LevelUpResult } from './levels'
 import { checkAndAwardBadges, type BadgeDefinition } from './badges'
 
 export type TaskFrequency = 'once' | 'daily' | 'weekly' | 'custom'
@@ -203,6 +203,7 @@ export async function completeTask(params: {
     .from('heroes')
     .update({ 
       total_xp: newTotalXp,
+      level: getLevelFromXP(newTotalXp),
     })
     .eq('id', heroId)
 
