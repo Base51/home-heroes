@@ -113,7 +113,7 @@ export async function createFamilyWithParent(
     // 1. Create family
     const { data: family, error: familyError } = await supabase
       .from('families')
-      .insert({ name: familyName })
+      .insert({ name: familyName, created_by: user.id })
       .select()
       .single()
 
