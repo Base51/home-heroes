@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Heroes — Turn Everyday Tasks Into Epic Adventures</title>
+  <meta name="description" content="Home Heroes is a cooperative family productivity game where household chores become quests. Earn XP, unlock badges, maintain streaks, and level up together!" />
+  <meta name="keywords" content="family chores app, kids task game, household productivity, family gamification, chore chart app" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Home Heroes — Turn Everyday Tasks Into Epic Adventures" />
+  <meta property="og:description" content="A cooperative family productivity game. Earn XP, unlock badges, and complete quests together!" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://home-heroes.app/og-image.png" />
+
+  <!-- Favicon (emoji fallback) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦸</text></svg>" />
+
+  <!-- Google Fonts: Baloo 2 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Baloo 2', system-ui, -apple-system, sans-serif;
+      color: #1e293b;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #379ce5, #7acafc);
+    }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+
+    .landing {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .logo {
+      margin: 0 auto 2.5rem;
+    }
+
+    .tagline {
+      font-size: 1.25rem;
+      color: rgba(255, 255, 255, .9);
+      font-weight: 500;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn-beta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      font-family: inherit;
+      border: none;
+      border-radius: 9999px;
+      background: #facc15;
+      color: #1e293b;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(250, 204, 21, .4);
+      transition: all .2s;
+    }
+    .btn-beta:hover {
+      background: #eab308;
+      transform: scale(1.05);
+    }
+    .btn-beta:active {
+      transform: translateY(2px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="landing">
+    <img
+      src="apps/web/public/home-heroes-logo.png"
+      alt="Home Heroes — Family Chores Game App for Kids and Parents"
+      class="logo"
+    />
+    <p class="tagline">Turn everyday tasks into epic family adventures.</p>
+    <a href="/signup" class="btn-beta">Join the Beta</a>
+  </div>
+</body>
+</html>
